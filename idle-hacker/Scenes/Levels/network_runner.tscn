@@ -1,0 +1,73 @@
+[gd_scene load_steps=5 format=3 uid="uid://bddoqymktxc6i"]
+
+[ext_resource type="Script" uid="uid://8lh6t0ir1gfn" path="res://Scenes/Levels/network_runner.gd" id="1_3i6hj"]
+[ext_resource type="PackedScene" uid="uid://cf1fb8hw3igws" path="res://Scenes/Enemies/server.tscn" id="2_aejc1"]
+[ext_resource type="Script" uid="uid://b3jpwq67gu5bo" path="res://Scenes/Utility/party_group.gd" id="2_ap6pr"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ap6pr"]
+size = Vector2(20, 20)
+
+[node name="NetworkRunner" type="Node2D"]
+script = ExtResource("1_3i6hj")
+server_scene = ExtResource("2_aejc1")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0.133196, 0.133196, 0.133196, 1)
+
+[node name="TravelLayer" type="Node2D" parent="."]
+
+[node name="PartyGroup" type="Node2D" parent="TravelLayer"]
+script = ExtResource("2_ap6pr")
+
+[node name="Agent1" type="Node2D" parent="TravelLayer/PartyGroup"]
+
+[node name="Sprite2D" type="Sprite2D" parent="TravelLayer/PartyGroup/Agent1"]
+texture = SubResource("PlaceholderTexture2D_ap6pr")
+
+[node name="Agent2" type="Node2D" parent="TravelLayer/PartyGroup"]
+
+[node name="Sprite2D" type="Sprite2D" parent="TravelLayer/PartyGroup/Agent2"]
+texture = SubResource("PlaceholderTexture2D_ap6pr")
+
+[node name="Agent3" type="Node2D" parent="TravelLayer/PartyGroup"]
+
+[node name="Sprite2D" type="Sprite2D" parent="TravelLayer/PartyGroup/Agent3"]
+texture = SubResource("PlaceholderTexture2D_ap6pr")
+
+[node name="ServerContainer" type="Node2D" parent="TravelLayer"]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="AgentPanel" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/AgentPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Agent1Health" type="ProgressBar" parent="UI/AgentPanel/VBoxContainer" groups=["HealthBar"]]
+layout_mode = 2
+show_percentage = false
+
+[node name="Agent2Health" type="ProgressBar" parent="UI/AgentPanel/VBoxContainer" groups=["HealthBar"]]
+layout_mode = 2
+show_percentage = false
+
+[node name="Agent3Health" type="ProgressBar" parent="UI/AgentPanel/VBoxContainer" groups=["HealthBar"]]
+layout_mode = 2
+show_percentage = false
+
+[node name="CommandPrompt" type="CanvasLayer" parent="."]
+
+[node name="PromptUI" type="Control" parent="CommandPrompt"]
+layout_mode = 3
+anchors_preset = 0
+offset_top = 64.0
+offset_right = 64.0
+offset_bottom = 104.0

@@ -1,0 +1,125 @@
+[gd_scene load_steps=10 format=3 uid="uid://gmmv84dx1otf"]
+
+[ext_resource type="PackedScene" uid="uid://dlnpl14u8qrre" path="res://Scenes/UI/terminal_window.tscn" id="1_s0gyx"]
+[ext_resource type="PackedScene" uid="uid://bv7p5pmifa37j" path="res://Scenes/UI/command_prompt.tscn" id="2_yjsus"]
+[ext_resource type="Texture2D" uid="uid://clbfkjds65btq" path="res://icon.svg" id="3_nk5xi"]
+[ext_resource type="Shader" uid="uid://0h40a6mt5n5a" path="res://Shaders/ascii.gdshader" id="3_u872a"]
+[ext_resource type="Texture2D" uid="uid://bm3b2sx2x5bvr" path="res://Shaders/ascii.png" id="5_7i1ub"]
+
+[sub_resource type="Animation" id="Animation_7i1ub"]
+resource_name = "icon_test"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.03333, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(512, 96), Vector2(512, 192), Vector2(512, 96)]
+}
+
+[sub_resource type="Animation" id="Animation_w0lsm"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(512, 96)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tpkgp"]
+_data = {
+&"RESET": SubResource("Animation_w0lsm"),
+&"icon_test": SubResource("Animation_7i1ub")
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nk5xi"]
+shader = ExtResource("3_u872a")
+shader_parameter/ascii_tex = ExtResource("5_7i1ub")
+shader_parameter/ascii_size = Vector2(8, 16)
+shader_parameter/available_columns = 10
+shader_parameter/max_columns = 16
+
+[node name="Main" type="Node"]
+
+[node name="BG" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.00308266, 0.0470834, 0.0233437, 1)
+
+[node name="Terminal Window" parent="." instance=ExtResource("1_s0gyx")]
+offset_right = -248.0
+offset_bottom = -32.0
+base_characters_per_minute = 2400.0
+glitch_chance = 0.4
+cursor_blink_speed = 0.7
+glitch_speed_multiplier = 0.8
+agent_action_color = Color(0.517647, 0.517647, 0.517647, 1)
+server_response_color = Color(0.75493, 0.697731, 0.374945, 1)
+combat_event_color = Color(0.517647, 0.517647, 0.517647, 1)
+success_color = Color(0, 0.968273, 0.737207, 1)
+warning_color = Color(1, 1, 1, 1)
+command_color = Color(0.517647, 0.517647, 0.517647, 1)
+help_color = Color(0.517184, 0.517184, 0.517184, 1)
+error_color = Color(0.830365, 0.330725, 0.381645, 1)
+system_color = Color(0, 0.968273, 0.737207, 1)
+
+[node name="LineEdit" parent="." instance=ExtResource("2_yjsus")]
+flat = false
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(512, 96)
+texture = ExtResource("3_nk5xi")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite2D"]
+libraries = {
+&"": SubResource("AnimationLibrary_tpkgp")
+}
+autoplay = "icon_test"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Ascii Shader" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_nk5xi")
+offset_left = 392.0
+offset_right = 640.0
+offset_bottom = 328.0
+color = Color(1, 1, 1, 0)

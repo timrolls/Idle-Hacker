@@ -88,12 +88,10 @@ color = Color(0, 0, 0, 1)
 
 [node name="Terminal Window" parent="." instance=ExtResource("1_s0gyx")]
 offset_right = -256.0
-offset_bottom = -32.0
+offset_bottom = -52.0
 theme = ExtResource("2_w0lsm")
-base_characters_per_minute = 2400.0
 glitch_chance = 0.5
 cursor_blink_speed = 0.7
-glitch_speed_multiplier = 0.8
 agent_action_color = Color(0.517647, 0.517647, 0.517647, 1)
 server_response_color = Color(0.75493, 0.697731, 0.374945, 1)
 combat_event_color = Color(0.517647, 0.517647, 0.517647, 1)

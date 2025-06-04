@@ -11,6 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_q2jdn")
+glitch_speed_multiplier = 0.9
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 texture_filter = 1
@@ -32,3 +33,5 @@ size_flags_vertical = 3
 theme = ExtResource("2_d2u20")
 bbcode_enabled = true
 text = "Test"
+scroll_following = true
+progress_bar_delay = -1

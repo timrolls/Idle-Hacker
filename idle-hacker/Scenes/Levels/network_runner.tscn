@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bddoqymktxc6i"]
 
 [ext_resource type="Script" uid="uid://8lh6t0ir1gfn" path="res://Scenes/Levels/network_runner.gd" id="1_3i6hj"]
-[ext_resource type="PackedScene" uid="uid://cf1fb8hw3igws" path="res://Scenes/Enemies/server.tscn" id="2_aejc1"]
+[ext_resource type="PackedScene" uid="uid://cv5o0d0y2m6sh" path="res://Scenes/Enemies/enemy_server.tscn" id="2_aejc1"]
 [ext_resource type="Script" uid="uid://b3jpwq67gu5bo" path="res://Scenes/Utility/party_group.gd" id="2_ap6pr"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ap6pr"]

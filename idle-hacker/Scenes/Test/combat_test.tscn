@@ -1,0 +1,63 @@
+[gd_scene load_steps=6 format=3 uid="uid://pwmmsg1u3be2"]
+
+[ext_resource type="Script" uid="uid://gk3ehq78ecqb" path="res://Scenes/Test/combat_test.gd" id="1_test"]
+[ext_resource type="PackedScene" uid="uid://c6kfjw55p0tjl" path="res://Scenes/Agents/agent.tscn" id="2_ackmw"]
+[ext_resource type="PackedScene" uid="uid://dlnpl14u8qrre" path="res://Scenes/UI/terminal_window.tscn" id="2_ghhax"]
+[ext_resource type="PackedScene" uid="uid://cv5o0d0y2m6sh" path="res://Scenes/Enemies/enemy_server.tscn" id="3_j05fj"]
+[ext_resource type="PackedScene" uid="uid://bv7p5pmifa37j" path="res://Scenes/UI/command_prompt.tscn" id="3_lrbht"]
+
+[node name="CombatTest" type="Node2D"]
+script = ExtResource("1_test")
+agent_scene = ExtResource("2_ackmw")
+server_scene = ExtResource("3_j05fj")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 960.0
+offset_bottom = 540.0
+color = Color(0.1, 0.1, 0.1, 1)
+
+[node name="AgentsContainer" type="Node2D" parent="."]
+z_index = 10
+position = Vector2(704, 256)
+
+[node name="ServerPosition" type="Marker2D" parent="."]
+z_index = 10
+position = Vector2(856, 256)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="StartButton" type="Button" parent="UILayer"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 150.0
+offset_bottom = 50.0
+text = "Start Combat"
+
+[node name="RecruitButton" type="Button" parent="UILayer"]
+offset_left = 152.0
+offset_top = 8.0
+offset_right = 292.0
+offset_bottom = 48.0
+text = "Recruit Agent"
+
+[node name="HardwareButton" type="Button" parent="UILayer"]
+offset_left = 296.0
+offset_top = 8.0
+offset_right = 436.0
+offset_bottom = 48.0
+text = "Hardware Stats"
+
+[node name="InfoLabel" type="Label" parent="UILayer"]
+visible = false
+offset_left = 10.0
+offset_top = 490.0
+offset_right = 950.0
+offset_bottom = 530.0
+text = "Type commands like: 'overload 1' or 'shield firewall' to activate abilities"
+
+[node name="Terminal Window" parent="UILayer" instance=ExtResource("2_ghhax")]
+offset_top = 64.0
+offset_right = -320.0
+offset_bottom = -28.0
+
+[node name="LineEdit" parent="UILayer" instance=ExtResource("3_lrbht")]

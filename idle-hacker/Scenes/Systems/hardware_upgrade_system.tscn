@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://uwqlnug3pkcl"]
+
+[ext_resource type="Script" uid="uid://clbn0r7k3o2bn" path="res://Scenes/Systems/hardware_upgrade_system.gd" id="1_a5hmv"]
+
+[node name="HardwareUpgradeSystem" type="Node"]
+script = ExtResource("1_a5hmv")

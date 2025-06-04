@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5y0g31py7rsb"]
+
+[ext_resource type="Script" uid="uid://c0o88pd30y051" path="res://Scenes/Systems/agent_recruitment_system.gd" id="1_mc0ua"]
+
+[node name="AgentRecruitmentSystem" type="Node"]
+script = ExtResource("1_mc0ua")

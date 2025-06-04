@@ -3,7 +3,7 @@ extends Control
 @onready var text_display = $ScrollContainer/RichTextLabel
 @onready var scroll_container = $ScrollContainer
 
-var max_lines: int = 100
+var max_lines: int = 20
 var current_lines: int = 0
 var line_buffer: Array[String] = []
 
@@ -14,12 +14,12 @@ var glitch_chars: String = "!@#$%^&*()_+-=[]{}|;':\",./<>?~`"
 
 # Exported animation settings
 @export_group("Animation Settings")
-@export var base_characters_per_minute: float = 600.0  # 600 = 10 chars per second
+@export var base_characters_per_minute: float = 3000.0  # 600 = 10 chars per second
 @export_range(0.0, 1.0) var glitch_chance: float = 0.7  # 70% chance per character
-@export var max_glitch_iterations: int = 3
+@export var max_glitch_iterations: int = 2
 @export var cursor_character: String = "▮"
-@export var cursor_blink_speed: float = 0.5  # Seconds between blink states
-@export var glitch_speed_multiplier: float = 0.3  # How much to slow down during glitch
+@export var cursor_blink_speed: float = 0.2  # Seconds between blink states
+@export var glitch_speed_multiplier: float = 0.8  # How much to slow down during glitch
 @export var line_by_line_delay: float = 0.1  # Delay between lines in line-by-line mode
 
 # Exported colors
@@ -58,6 +58,10 @@ func _ready():
 	TerminalCommands.execute_command("logo")
 	add_log_entry(">> NETWORK INFILTRATION SYSTEM ONLINE <<", system_color)
 	add_log_entry("Initializing agent protocols...", system_color)
+	
+	
+#func process():
+	#var lines = text_display.get_line_count()
 
 func add_log_entry(message: String, color: Color = Color.WHITE, speed_multiplier: float = 1.0):
 	var timestamp = "[%02d:%02d:%02d] " % [

@@ -16,7 +16,7 @@ var glitch_chars: String = "!@#$%^&*()_+-=[]{}|;':\",./<>?~`"
 @export_group("Animation Settings")
 @export var base_characters_per_minute: float = 3000.0  # 600 = 10 chars per second
 @export_range(0.0, 1.0) var glitch_chance: float = 0.7  # 70% chance per character
-@export var max_glitch_iterations: int = 2
+@export var max_glitch_iterations: int = 1
 @export var cursor_character: String = "▮"
 @export var cursor_blink_speed: float = 0.2  # Seconds between blink states
 @export var glitch_speed_multiplier: float = 0.8  # How much to slow down during glitch
@@ -205,7 +205,7 @@ func animate_text_entry(anim_data: Dictionary):
 				update_line_with_cursor(current_line_index, temp_text, anim_data.color, cursor_visible)
 				
 				# Slower glitch speed
-				await get_tree().create_timer(char_delay / glitch_speed_multiplier).timeout
+				await get_tree().create_timer(char_delay / glitch_speed_multiplier, false, true).timeout
 		
 		# Show correct character
 		revealed_text += target_char
@@ -213,7 +213,7 @@ func animate_text_entry(anim_data: Dictionary):
 		
 		# Normal speed for correct characters
 		var actual_delay = char_delay * randf_range(0.8, 1.2)
-		await get_tree().create_timer(actual_delay).timeout
+		await get_tree().create_timer(actual_delay, false, true).timeout
 	
 	# Stop cursor blinking and remove cursor
 	cursor_timer.queue_free()

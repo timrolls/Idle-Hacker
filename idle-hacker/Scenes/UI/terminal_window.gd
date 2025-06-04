@@ -60,8 +60,6 @@ func _ready():
 	add_log_entry("Initializing agent protocols...", system_color)
 	
 	
-#func process():
-	#var lines = text_display.get_line_count()
 
 func add_log_entry(message: String, color: Color = Color.WHITE, speed_multiplier: float = 1.0):
 	var timestamp = "[%02d:%02d:%02d] " % [

@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3 uid="uid://dv6gfivoemapv"]
+
+[ext_resource type="Script" uid="uid://cxy2bpr4xu3g2" path="res://Scenes/UI/os_taskbar.gd" id="1_taskbar"]
+
+[node name="OSTaskbar" type="Control"]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 0.08
+script = ExtResource("1_taskbar")
+
+[node name="TaskbarPanel" type="Panel" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TaskbarPanel"]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 4.0
+grow_vertical = 2
+
+[node name="SystemTray" type="HBoxContainer" parent="TaskbarPanel"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -88.0
+offset_right = -84.0
+grow_horizontal = 0
+grow_vertical = 2
+alignment = 2
+
+[node name="ClockLabel" type="Label" parent="TaskbarPanel"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_right = -10.0
+text = "00:00:00"
+horizontal_alignment = 1
+vertical_alignment = 1

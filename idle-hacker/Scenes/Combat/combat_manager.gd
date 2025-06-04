@@ -126,6 +126,6 @@ func get_combat_status() -> Dictionary:
 	return {
 		"active": is_combat_active,
 		"agents_alive": active_agents.size(),
-		"server_health": current_server.current_health if current_server else 0,
-		"duration": (Time.get_ticks_msec() / 1000.0) - combat_start_time if is_combat_active else 0
+		"server_health": current_server.current_health if current_server else 0.0,
+		"duration": (Time.get_ticks_msec() / 1000.0) - combat_start_time if is_combat_active else 0.0
 	}

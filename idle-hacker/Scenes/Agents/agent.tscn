@@ -1,15 +1,22 @@
 [gd_scene load_steps=3 format=3 uid="uid://c6kfjw55p0tjl"]
 
 [ext_resource type="Script" uid="uid://dtxn3f7cjdaxq" path="res://Scenes/Agents/agent.gd" id="1_agent"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_agent"]
-size = Vector2(32, 32)
+[ext_resource type="Texture2D" uid="uid://cujjmk5xhwyq5" path="res://Assets/Placeholders/Ring.svg" id="2_ryekx"]
 
 [node name="Agent" type="Node2D"]
 script = ExtResource("1_agent")
 
+[node name="Sprite" type="ColorRect" parent="."]
+visible = false
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(1, 0.647059, 0, 1)
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = SubResource("PlaceholderTexture2D_agent")
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_ryekx")
 
 [node name="HealthBar" type="ProgressBar" parent="."]
 modulate = Color(1, 1, 1, 0.8)

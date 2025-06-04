@@ -92,15 +92,11 @@ offset_bottom = -52.0
 theme = ExtResource("2_w0lsm")
 glitch_chance = 0.5
 cursor_blink_speed = 0.7
-agent_action_color = Color(0.517647, 0.517647, 0.517647, 1)
 server_response_color = Color(0.75493, 0.697731, 0.374945, 1)
-combat_event_color = Color(0.517647, 0.517647, 0.517647, 1)
 success_color = Color(0, 0.968273, 0.737207, 1)
 warning_color = Color(1, 1, 1, 1)
-command_color = Color(0.517647, 0.517647, 0.517647, 1)
 help_color = Color(0.517184, 0.517184, 0.517184, 1)
 error_color = Color(0.830365, 0.330725, 0.381645, 1)
-system_color = Color(0, 0.968273, 0.737207, 1)
 
 [node name="LineEdit" parent="." instance=ExtResource("2_yjsus")]
 offset_right = 704.0
@@ -114,6 +110,7 @@ offset_left = 712.0
 offset_right = 960.0
 offset_bottom = 536.0
 color = Color(1, 1, 1, 0)
+metadata/_edit_use_anchors_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="CanvasLayer/Ascii Shader"]
 show_behind_parent = true

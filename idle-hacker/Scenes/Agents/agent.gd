@@ -19,7 +19,6 @@ var level: int = 1
 var experience: int = 0
 
 # Abilities
-#var abilities: Array[Dictionary] = []
 var abilities: Array = []
 var ability_cooldowns: Dictionary = {}  # Track cooldowns
 var active_buffs: Array[Dictionary] = []  # Active ability effects
@@ -39,16 +38,28 @@ signal attack_performed(target: Node2D, damage: float)
 
 func _ready():
 	current_health = max_health
+	
+	# Ensure we have required nodes
+	if not sprite:
+		sprite = get_node_or_null("Sprite2D")
+	if not health_bar:
+		health_bar = get_node_or_null("HealthBar")
+	if not attack_timer:
+		attack_timer = get_node_or_null("AttackTimer")
+	
 	setup_health_bar()
 	setup_attack_timer()
 	
 	# Apply visual style based on agent type
-	#apply_agent_style()
+	apply_agent_style()
 	
 	# Initialize ability cooldowns
 	setup_abilities()
 
 func setup_health_bar():
+	if not health_bar:
+		return
+		
 	health_bar.max_value = max_health
 	health_bar.value = current_health
 	health_bar.show_percentage = false
@@ -56,30 +67,36 @@ func setup_health_bar():
 	health_bar.position = Vector2(-20, -30)
 
 func setup_attack_timer():
+	if not attack_timer:
+		return
+		
 	attack_timer.wait_time = 1.0 / (base_attack_speed * cpu_speed_multiplier)
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 
-#func apply_agent_style():
-	#match agent_type:
-		#"BruteForce":
-			#sprite.modulate = Color.BLUE
-			#agent_name = "BruteForce_Agent" if agent_name == "Agent" else agent_name
-		#"Firewall":
-			#sprite.modulate = Color.GREEN
-			#agent_name = "Firewall_Agent" if agent_name == "Agent" else agent_name
-		#"PacketSniffer":
-			#sprite.modulate = Color.RED
-			#agent_name = "PacketSniffer_Agent" if agent_name == "Agent" else agent_name
-		#"Cryptominer":
-			#sprite.modulate = Color.YELLOW
-			#agent_name = "Cryptominer_Agent" if agent_name == "Agent" else agent_name
-		#"Botnet":
-			#sprite.modulate = Color.PURPLE
-			#agent_name = "Botnet_Agent" if agent_name == "Agent" else agent_name
-	#
-	## Apply rarity color if we have agent data
-	#if agent_data.has("color"):
-		#sprite.modulate = sprite.modulate.blend(agent_data.color)
+func apply_agent_style():
+	if not sprite:
+		return
+		
+	match agent_type:
+		"BruteForce":
+			sprite.modulate = Color.BLUE
+			agent_name = "BruteForce_Agent" if agent_name == "Agent" else agent_name
+		"Firewall":
+			sprite.modulate = Color.GREEN
+			agent_name = "Firewall_Agent" if agent_name == "Agent" else agent_name
+		"PacketSniffer":
+			sprite.modulate = Color.RED
+			agent_name = "PacketSniffer_Agent" if agent_name == "Agent" else agent_name
+		"Cryptominer":
+			sprite.modulate = Color.YELLOW
+			agent_name = "Cryptominer_Agent" if agent_name == "Agent" else agent_name
+		"Botnet":
+			sprite.modulate = Color.PURPLE
+			agent_name = "Botnet_Agent" if agent_name == "Agent" else agent_name
+	
+	# Apply rarity color if we have agent data
+	if agent_data.has("color"):
+		sprite.modulate = sprite.modulate.blend(agent_data.color)
 
 func start_combat(target: Node2D):
 	if not is_attacking and is_instance_valid(target):
@@ -124,7 +141,8 @@ func take_damage(amount: float):
 		actual_damage *= 0.7
 	
 	current_health -= actual_damage
-	health_bar.value = current_health
+	if health_bar:
+		health_bar.value = current_health
 	
 	# Visual feedback
 	_play_hurt_animation()
@@ -147,7 +165,8 @@ func die():
 
 func heal(amount: float):
 	current_health = min(current_health + amount, max_health)
-	health_bar.value = current_health
+	if health_bar:
+		health_bar.value = current_health
 	EventBus.agent_health_changed.emit(agent_name, current_health, max_health)
 
 func apply_hardware_upgrades(cpu_mult: float, dmg_mult: float, def_mult: float):
@@ -160,11 +179,17 @@ func apply_hardware_upgrades(cpu_mult: float, dmg_mult: float, def_mult: float):
 		attack_timer.wait_time = 1.0 / (base_attack_speed * cpu_speed_multiplier)
 
 func _play_attack_animation():
+	if not sprite:
+		return
+		
 	var tween = get_tree().create_tween()
 	tween.tween_property(sprite, "position:x", sprite.position.x + 10, 0.1)
 	tween.tween_property(sprite, "position:x", sprite.position.x, 0.1)
 
 func _play_hurt_animation():
+	if not sprite:
+		return
+		
 	var tween = get_tree().create_tween()
 	tween.tween_property(sprite, "modulate:v", 0.5, 0.1)
 	tween.tween_property(sprite, "modulate:v", 1.0, 0.1)
@@ -212,7 +237,7 @@ func load_from_data(data: Dictionary):
 	
 	# Setup abilities from data
 	setup_abilities()
-	#apply_agent_style()
+	apply_agent_style()
 
 func activate_ability(ability_name: String) -> bool:
 	for ability in abilities:
@@ -257,9 +282,10 @@ func _activate_overload():
 	active_buffs.append(buff)
 	
 	# Visual effect
-	var tween = get_tree().create_tween()
-	tween.tween_property(sprite, "modulate:v", 2.0, 0.2)
-	tween.tween_property(sprite, "modulate:v", 1.0, 0.2)
+	if sprite:
+		var tween = get_tree().create_tween()
+		tween.tween_property(sprite, "modulate:v", 2.0, 0.2)
+		tween.tween_property(sprite, "modulate:v", 1.0, 0.2)
 
 func _activate_shield():
 	# This would affect all agents - needs combat manager integration

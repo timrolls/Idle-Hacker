@@ -4,6 +4,7 @@
 [ext_resource type="Theme" uid="uid://buofu5v88dxt1" path="res://Scenes/UI/Themes/terminal_window.tres" id="1_mdkyh"]
 
 [node name="LineEdit" type="LineEdit"]
+texture_filter = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0

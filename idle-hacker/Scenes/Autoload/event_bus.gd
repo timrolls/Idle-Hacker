@@ -26,6 +26,9 @@ signal upgrade_unlocked(upgrade_name: String)
 # Command input signal
 signal command_input(command: String)
 signal ascii_art_display(art: String, color: Color, speed: float)
+signal multiline_log_display(lines: Array, color: Color, speed: float)
+signal log_entry_display(message: String, color: Color, speed: float)
+signal clear_log_requested()
 
 # Helper functions to emit common events
 func emit_damage(attacker: String, target: String, damage: int):
@@ -39,8 +42,20 @@ func emit_command(command: String):
 
 func emit_ascii_art(art: String, color: Color = Color.WHITE, speed: float = 0.5):
 	ascii_art_display.emit(art, color, speed)
-	
-	
+
+func emit_multiline_log(lines: Array, color: Color = Color.WHITE, speed: float = 1.0):
+	multiline_log_display.emit(lines, color, speed)
+
+func emit_log_entry(message: String, color: Color = Color.WHITE, speed: float = 1.0):
+	log_entry_display.emit(message, color, speed)
+
+func emit_clear_log():
+	clear_log_requested.emit()
+
+func emit_command_result(command: String, success: bool, message: String = ""):
+	if message != "":
+		emit_log_entry(message, Color.RED if not success else Color.GREEN)
+	command_entered.emit(command, success)
 
 #Note for signaling ascii art
 #EventBus.emit_ascii_art("""

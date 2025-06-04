@@ -15,6 +15,7 @@ uniform sampler2D ascii_tex : source_color;
 uniform vec2 ascii_size = vec2( 8.0, 16.0 );
 uniform int available_columns = 10;
 uniform int max_columns = 16;
+//uniform vec4 threshold : source_color;
 
 void fragment( )
 {

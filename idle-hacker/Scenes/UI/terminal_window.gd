@@ -50,9 +50,12 @@ func _ready():
 	EventBus.command_entered.connect(_on_command_entered)
 	EventBus.command_input.connect(_on_command_input)
 	EventBus.ascii_art_display.connect(_on_ascii_art_display)
+	EventBus.multiline_log_display.connect(_on_multiline_log_display)
+	EventBus.log_entry_display.connect(_on_log_entry_display)
+	EventBus.clear_log_requested.connect(_on_clear_log_requested)
 	
 	# Add initial startup message
-	process_command("logo")
+	TerminalCommands.execute_command("logo")
 	add_log_entry(">> NETWORK INFILTRATION SYSTEM ONLINE <<", system_color)
 	add_log_entry("Initializing agent protocols...", system_color)
 
@@ -299,56 +302,19 @@ func _on_command_input(command: String):
 	# Echo the command like a real terminal - fast typing
 	add_log_entry(">> %s" % command, command_color, 5.0)
 	
-	# Process the command (you can expand this)
-	process_command(command)
+	# Send to command processor
+	TerminalCommands.execute_command(command)
 
 func _on_ascii_art_display(art: String, color: Color, speed: float):
 	add_ascii_art(art, color, speed)
 
-func process_command(command: String):
-	var cmd = command.to_lower().strip_edges()
-	
-	match cmd:
-		"help":
-			add_log_entry("Available commands: help, status, boost, heal, logo, banner", help_color, 2.0)
-		"status":
-			var status_lines = [
-				"=== SYSTEM STATUS ===",
-				"CPU: 98.7% efficient",
-				"Memory: 2.1GB / 8GB",
-				"Network: SECURED",
-				"Agents: 3 ACTIVE",
-				"Status: OPERATIONAL"
-			]
-			add_multiline_log(status_lines, system_color, 1.5)
-		"boost":
-			add_log_entry("Boosting agent performance...", agent_action_color, 1.0)
-			EventBus.command_entered.emit("boost", true)
-		"heal":
-			add_log_entry("Initiating emergency protocols...", warning_color, 1.0)
-			EventBus.command_entered.emit("heal", true)
-		"logo":
-			var logo_art = """
-██╗  ██╗ █████╗  ██████╗██╗  ██╗
-██║  ██║██╔══██╗██╔════╝██║ ██╔╝
-███████║███████║██║     █████╔╝ 
-██╔══██║██╔══██║██║     ██╔═██╗ 
-██║  ██║██║  ██║╚██████╗██║  ██╗
-╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
-	  NETWORK INFILTRATION SYSTEM
-	
-	"""
-			add_ascii_art(logo_art, agent_action_color, 0.3, true)  # Line-by-line
-		"banner":
-			var banner_art = """
-╔══════════════════════════════════╗
-║    UNAUTHORIZED ACCESS DETECTED  ║
-║      DEPLOYING COUNTERMEASURES   ║
-║         [ ! WARNING ! ]          ║
-╚══════════════════════════════════╝
+func _on_multiline_log_display(lines: Array, color: Color, speed: float):
+	add_multiline_log(lines, color, speed)
 
-"""
-			add_ascii_art(banner_art, warning_color, 0.8, true)  # Line-by-line
-		_:
-			add_log_entry("Unknown command: %s" % command, error_color, 2.0)
-			EventBus.command_entered.emit(command, false)
+func _on_log_entry_display(message: String, color: Color, speed: float):
+	add_log_entry(message, color, speed)
+
+func _on_clear_log_requested():
+	line_buffer.clear()
+	current_lines = 0
+	update_display()

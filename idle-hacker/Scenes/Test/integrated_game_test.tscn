@@ -166,6 +166,7 @@ anchor_bottom = 1.0
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 0.9
+offset_bottom = -10.12
 
 [node name="CommandPrompt" parent="UILayer/TerminalView" instance=ExtResource("5_prompt")]
 layout_mode = 0

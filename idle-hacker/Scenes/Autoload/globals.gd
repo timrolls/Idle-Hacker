@@ -12,3 +12,4 @@ extends Node
 @export var help_color: Color = Color.GRAY
 @export var error_color: Color = Color.ORANGE_RED
 @export var system_color: Color = Color.GRAY
+@export var timestamp_color: Color = Color.DIM_GRAY

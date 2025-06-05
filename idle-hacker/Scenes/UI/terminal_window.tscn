@@ -11,7 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_q2jdn")
-default_animation_duration = 100.0
+default_animation_duration = 0.5
 line_by_line_delay = 0.5
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
@@ -35,4 +35,6 @@ theme = ExtResource("2_d2u20")
 bbcode_enabled = true
 text = "Test"
 scroll_following = true
+vertical_alignment = 2
 progress_bar_delay = -1
+visible_characters_behavior = 1

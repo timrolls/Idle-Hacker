@@ -19,9 +19,9 @@ var current_tween: Tween
 @export var cursor_blink_speed: float = 0.5  # Seconds between blink states
 @export var line_by_line_delay: float = 0.1  # Delay between lines in line-by-line mode
 @export var enable_glitch_effect: bool = true
+@export var glitch_chance: float = 0.4  # 0.0 to 1.0
 @export var glitch_intensity: float = 0.3  # 0.0 to 1.0
-
-
+@export var show_timestamps: bool = true
 
 func _ready():
 	# Set up terminal styling
@@ -48,32 +48,40 @@ func _ready():
 	add_log_entry("Initializing agent protocols...", Globals.system_color)
 
 func add_log_entry(message: String, color: Color = Color.WHITE, duration_override: float = -1.0, use_glitch: bool = false):
-	var timestamp = "[%02d:%02d:%02d] " % [
-		Time.get_time_dict_from_system().hour,
-		Time.get_time_dict_from_system().minute, 
-		Time.get_time_dict_from_system().second
-	]
+	# Generate timestamp if enabled
+	var timestamp = ""
+	if show_timestamps:
+		timestamp = "[%02d:%02d:%02d] " % [
+			Time.get_time_dict_from_system().hour,
+			Time.get_time_dict_from_system().minute, 
+			Time.get_time_dict_from_system().second
+		]
 	
 	# Check if this is a multi-line message
 	var lines = message.split("\n")
 	
 	if lines.size() > 1:
-		# Multi-line message - animate each line separately
+		# Multi-line message - animate as one block
+		var full_message = ""
 		for i in range(lines.size()):
 			var line_text = lines[i]
 			# Only add timestamp to first line
-			if i == 0:
-				line_text = timestamp + line_text
+			if i == 0 and show_timestamps:
+				# Don't include timestamp in animated content
+				pass
 			else:
 				# Indent continuation lines slightly
 				line_text = "    " + line_text
 			
-			var animation_data = create_animation_data(line_text, color, duration_override, use_glitch, false)
-			animation_queue.append(animation_data)
+			if i > 0:
+				full_message += "\n"
+			full_message += line_text
+		
+		var animation_data = create_animation_data(full_message, color, duration_override, use_glitch, timestamp)
+		animation_queue.append(animation_data)
 	else:
-		# Single line message
-		var full_message = timestamp + message
-		var animation_data = create_animation_data(full_message, color, duration_override, use_glitch, false)
+		# Single line message - don't include timestamp in animated content
+		var animation_data = create_animation_data(message, color, duration_override, use_glitch, timestamp)
 		animation_queue.append(animation_data)
 	
 	# Start animation if not already running
@@ -85,11 +93,14 @@ func add_multiline_log(lines: Array, color: Color = Color.WHITE, duration_overri
 	add_log_entry(message, color, duration_override, use_glitch)
 
 func add_ascii_art(art: String, color: Color = Color.WHITE, duration_override: float = -1.0, use_glitch: bool = false):
-	var timestamp = "[%02d:%02d:%02d] " % [
-		Time.get_time_dict_from_system().hour,
-		Time.get_time_dict_from_system().minute, 
-		Time.get_time_dict_from_system().second
-	]
+	# Generate timestamp if enabled
+	var timestamp = ""
+	if show_timestamps:
+		timestamp = "[%02d:%02d:%02d] " % [
+			Time.get_time_dict_from_system().hour,
+			Time.get_time_dict_from_system().minute, 
+			Time.get_time_dict_from_system().second
+		]
 	
 	# Treat the entire ASCII art as one message for timing
 	var lines = art.split("\n")
@@ -97,10 +108,8 @@ func add_ascii_art(art: String, color: Color = Color.WHITE, duration_override: f
 	
 	for i in range(lines.size()):
 		var line_text = lines[i]
-		# Only add timestamp to first line
-		if i == 0:
-			line_text = timestamp + line_text
-		else:
+		# Don't include timestamp in animated content - it will be added instantly
+		if i > 0:
 			# Indent continuation lines slightly
 			line_text = "    " + line_text
 		
@@ -109,26 +118,27 @@ func add_ascii_art(art: String, color: Color = Color.WHITE, duration_override: f
 		full_message += line_text
 	
 	# Create single animation for entire ASCII art
-	var animation_data = create_animation_data(full_message, color, duration_override, use_glitch, false)
+	var animation_data = create_animation_data(full_message, color, duration_override, use_glitch, timestamp)
 	animation_queue.append(animation_data)
 	
 	# Start animation if not already running
 	if not is_animating:
 		process_animation_queue()
 
-func create_animation_data(full_message: String, color: Color, duration_override: float, use_glitch: bool, line_by_line: bool) -> Dictionary:
+func create_animation_data(message: String, color: Color, duration_override: float, use_glitch: bool, timestamp: String = "") -> Dictionary:
 	var duration = duration_override if duration_override > 0 else default_animation_duration
 	
-	# Shorter messages should animate faster, longer messages slower
-	var message_length = full_message.length()
+	# Calculate duration based only on the message content (not timestamp)
+	var message_length = message.length()
 	if duration_override < 0:  # Only auto-adjust if no override specified
 		duration = max(0.5, min(4.0, message_length * 0.02))  # 20ms per character, clamped
 	
 	return {
-		"message": full_message,
+		"message": message,
 		"color": color,
 		"duration": duration,
-		"use_glitch": use_glitch and enable_glitch_effect
+		"use_glitch": use_glitch and enable_glitch_effect,
+		"timestamp": timestamp
 	}
 
 func process_animation_queue():
@@ -139,157 +149,89 @@ func process_animation_queue():
 	is_animating = true
 	var current_anim = animation_queue.pop_front()
 	
-	await animate_text_with_visible_characters(current_anim)
+	await animate_text_with_visible_ratio(current_anim)
 	
 	# Process next in queue
 	process_animation_queue()
 
-func animate_line_instantly(anim_data: Dictionary):
-	# Add the full line instantly, then wait for line delay
-	var formatted_line = "[color=%s]%s[/color]" % [anim_data.color.to_html(), anim_data.message]
-	line_buffer.append(formatted_line)
-	current_lines += 1
-	
-	update_display()
-	
-	# Auto-scroll
-	await get_tree().process_frame
-	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
-	
-	# Wait before next line
-	await get_tree().create_timer(line_by_line_delay).timeout
-	
-	if current_lines > max_lines:
-		trim_old_lines()
-
-func animate_text_with_visible_characters(anim_data: Dictionary):
+func animate_text_with_visible_ratio(anim_data: Dictionary):
 	var message = anim_data.message
 	var duration = anim_data.duration
 	var color = anim_data.color
 	var use_glitch = anim_data.use_glitch
+	var timestamp = anim_data.get("timestamp", "")
 	
-	# Add the formatted message to buffer
-	var formatted_line = "[color=%s]%s[/color]" % [color.to_html(), message]
-	line_buffer.append(formatted_line)
+	# Create the full line with timestamp (if enabled) + message
+	var full_line = ""
+	var timestamp_char_count = 0
+	
+	if timestamp != "":
+		# Add timestamp in timestamp color
+		full_line += "[color=%s]%s[/color]" % [Globals.timestamp_color.to_html(), timestamp]
+		timestamp_char_count = timestamp.length()
+	
+	# Add the message part in its color
+	full_line += "[color=%s]%s[/color]" % [color.to_html(), message]
+	
+	# Add the complete line to buffer
+	line_buffer.append(full_line)
 	current_lines += 1
 	var current_line_index = line_buffer.size() - 1
 	
-	# Get starting character position for this line
-	var chars_before_line = get_total_visible_chars_before_line(current_line_index)
-	var total_chars_in_message = message.length()
+	# Calculate character counts for ratio calculation
+	var chars_before_new_line = get_total_chars_before_line(current_line_index)
+	var chars_before_message = chars_before_new_line + timestamp_char_count
+	var message_char_count = get_clean_char_count(message)
+	var total_chars_after = chars_before_message + message_char_count
 	
-	# Start with all characters hidden for this message
-	text_display.visible_characters = chars_before_line
+	# Update display so we can calculate ratios
 	update_display()
 	
-	# Animate visible characters using tween
+	# Scroll immediately to show the new line
+	await get_tree().process_frame
+	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
+	
+	# Calculate ratios - start by showing timestamp + previous content, then animate the message
+	var start_ratio = float(chars_before_message) / float(total_chars_after)
+	var end_ratio = 1.0
+	
+	# Start with timestamp visible but message hidden
+	text_display.visible_ratio = start_ratio
+	
+	# Animate to show the message part
 	if current_tween:
 		current_tween.kill()
 	current_tween = create_tween()
 	
-	# Smoothly reveal characters over the duration
-	current_tween.tween_method(
-		_update_visible_chars.bind(chars_before_line, chars_before_line + total_chars_in_message),
-		0.0,
-		1.0,
-		duration
-	)
-	
+	current_tween.tween_property(text_display, "visible_ratio", end_ratio, duration)
 	await current_tween.finished
 	
-	# Ensure all characters are visible and start post-animation glitch if needed
-	text_display.visible_characters = -1
+	# Ensure full visibility
+	text_display.visible_ratio = 1.0
 	
+	# Start post-animation glitch if requested
 	if use_glitch:
 		start_post_animation_glitch(current_line_index, color, message)
 	
-	# Auto-scroll and trim if needed
+	# Final scroll to ensure visibility
 	await get_tree().process_frame
 	scroll_container.scroll_vertical = scroll_container.get_v_scroll_bar().max_value
 	
 	if current_lines > max_lines:
 		trim_old_lines()
 
-func animate_with_cursor(line_index: int, total_chars: int, duration: float, color: Color):
-	var start_chars = get_total_visible_chars_before_line(line_index)
-	var cursor_blink_timer = 0.0
-	var cursor_visible = true
-	
-	# Animation step size for smooth movement
-	var steps = max(30, total_chars)  # At least 30 steps for smooth animation
-	var step_duration = duration / steps
-	
-	for i in range(steps + 1):
-		var progress = float(i) / float(steps)
-		var chars_to_show = int(progress * total_chars)
-		
-		# Update visible characters
-		text_display.visible_characters = start_chars + chars_to_show
-		
-		# Update cursor blinking
-		cursor_blink_timer += step_duration
-		if cursor_blink_timer >= cursor_blink_speed:
-			cursor_visible = not cursor_visible
-			cursor_blink_timer = 0.0
-		
-		# Add cursor at current position if we're not at the end
-		if chars_to_show < total_chars:
-			update_line_with_cursor_at_position(line_index, chars_to_show, color, cursor_visible)
-		else:
-			# Remove cursor when done
-			remove_cursor_from_line(line_index, color)
-		
-		await get_tree().create_timer(step_duration).timeout
-	
-	# Ensure cursor is removed at the end
-	remove_cursor_from_line(line_index, color)
-
-func animate_with_glitch_effect(line_index: int, total_chars: int, duration: float, color: Color):
-	var start_chars = get_total_visible_chars_before_line(line_index)
-	var original_message = line_buffer[line_index]
-	
-	# Extract the actual message without color tags
-	var clean_message = extract_clean_message(original_message)
-	
-	var steps = max(40, total_chars)  # More steps for glitch effect
-	var step_duration = duration / steps
-	
-	for i in range(steps + 1):
-		var progress = float(i) / float(steps)
-		var chars_to_show = int(progress * total_chars)
-		
-		# Create glitched version of current text
-		var current_text = clean_message.substr(0, chars_to_show)
-		
-		# Add random glitch characters at the end
-		if chars_to_show < total_chars and randf() < glitch_intensity:
-			var glitch_chars = "!@#$%^&*()_+-=[]{}|;':\",./<>?~`"
-			var glitch_count = min(3, total_chars - chars_to_show)
-			for j in range(glitch_count):
-				current_text += glitch_chars[randi() % glitch_chars.length()]
-		
-		# Update the line with glitched text
-		line_buffer[line_index] = "[color=%s]%s[/color]" % [color.to_html(), current_text]
-		update_display()
-		
-		text_display.visible_characters = start_chars + current_text.length()
-		
-		await get_tree().create_timer(step_duration).timeout
-	
-	# Restore clean final text
-	line_buffer[line_index] = "[color=%s]%s[/color]" % [color.to_html(), clean_message]
-	update_display()
-
-func get_total_visible_chars_before_line(line_index: int) -> int:
+func get_total_chars_before_line(line_index: int) -> int:
 	var char_count = 0
 	for i in range(line_index):
 		if i < line_buffer.size():
-			# Count actual characters, not including BBCode tags
 			var clean_text = extract_clean_message(line_buffer[i])
 			char_count += clean_text.length()
 			if i > 0:  # Add newline character count except for first line
 				char_count += 1
 	return char_count
+
+func get_clean_char_count(message: String) -> int:
+	return message.length()
 
 func extract_clean_message(formatted_line: String) -> String:
 	# Remove BBCode color tags
@@ -297,21 +239,19 @@ func extract_clean_message(formatted_line: String) -> String:
 	regex.compile("\\[color=[^\\]]+\\]|\\[/color\\]")
 	return regex.sub(formatted_line, "", true)
 
-# Helper function to update visible characters during tween
-func _update_visible_chars(start_chars: int, end_chars: int, progress: float):
-	var current_chars = int(start_chars + (end_chars - start_chars) * progress)
-	text_display.visible_characters = current_chars
-
 # Post-animation glitch effect
 func start_post_animation_glitch(line_index: int, color: Color, original_message: String):
 	if not enable_glitch_effect:
+		return
+	
+	# Random chance to trigger glitch
+	if randf() > glitch_chance:
 		return
 	
 	var glitch_duration = randf_range(0.5, 2.0)  # Random glitch duration
 	var glitch_interval = 0.1  # How often to change glitch
 	var glitch_chars = "!@#$%^&*()_+-=[]{}|;':\",./<>?~`"
 	
-	var glitch_timer = 0.0
 	var total_time = 0.0
 	
 	while total_time < glitch_duration:
@@ -339,17 +279,6 @@ func start_post_animation_glitch(line_index: int, color: Color, original_message
 		await get_tree().create_timer(glitch_interval).timeout
 		total_time += glitch_interval
 
-# These functions are kept for compatibility but not used in current cursor-less implementation
-func update_line_with_cursor_at_position(line_index: int, char_position: int, color: Color, cursor_visible: bool):
-	# Legacy function - not used in current implementation
-	pass
-
-func remove_cursor_from_line(line_index: int, color: Color):
-	# Legacy function - not used in current implementation
-	pass
-
-
-
 func update_display():
 	text_display.text = "\n".join(line_buffer)
 
@@ -362,7 +291,7 @@ func trim_old_lines():
 	# Rebuild display
 	text_display.text = "\n".join(line_buffer)
 
-# Event handlers (keeping all the existing ones)
+# Event handlers (using global colors from Globals autoload)
 func _on_damage_dealt(attacker: String, target: String, damage: int):
 	add_log_entry("%s >> %s [%d DMG]" % [attacker, target, damage], Globals.damage_color, 1.5)
 

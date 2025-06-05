@@ -26,7 +26,6 @@ func register_all_commands():
 	# Visual commands
 	register_command("logo", "Display system logo", _cmd_logo)
 	register_command("banner", "Show warning banner", _cmd_banner)
-	register_command("matrix", "Display matrix effect", _cmd_matrix)
 	
 	# Combat ability commands
 	register_command("overload", "Activate BruteForce overload ability", _cmd_ability)
@@ -63,7 +62,7 @@ func get_command_list() -> Array[String]:
 func _cmd_help(cmd: String):
 	var help_lines = ["Available commands:"]
 	help_lines.append_array(get_command_list())
-	EventBus.emit_multiline_log(help_lines, Color.CYAN, 2.0)
+	EventBus.emit_multiline_log(help_lines, Globals.help_color,  2.0)
 
 func _cmd_status(cmd: String):
 	var status_lines = [
@@ -83,14 +82,14 @@ func _cmd_status(cmd: String):
 
 func _cmd_clear(cmd: String):
 	EventBus.emit_clear_log()
-	EventBus.emit_log_entry("Terminal cleared.", Color.YELLOW, 3.0)
+	EventBus.emit_log_entry("Terminal cleared.", Globals.command_color, 3.0)
 
 func _cmd_boost(cmd: String):
-	EventBus.emit_log_entry("Boosting agent performance...", Color.CYAN, 1.0)
+	EventBus.emit_log_entry("Boosting agent performance...", Globals.command_color, 1.0)
 	EventBus.command_entered.emit("boost", true)
 
 func _cmd_heal(cmd: String):
-	EventBus.emit_log_entry("Initiating emergency protocols...", Color.MAGENTA, 1.0)
+	EventBus.emit_log_entry("Initiating emergency protocols...", Globals.command_color, 1.0)
 	EventBus.command_entered.emit("heal", true)
 
 func _cmd_agents(cmd: String):
@@ -102,7 +101,7 @@ func _cmd_agents(cmd: String):
 		"",
 		"All agents operating within normal parameters."
 	]
-	EventBus.emit_multiline_log(agent_lines, Color.BLUE, 1.8)
+	EventBus.emit_multiline_log(agent_lines, Globals.command_color,  1.8)
 
 func _cmd_logo(cmd: String):
 	var logo_art = """
@@ -116,7 +115,7 @@ func _cmd_logo(cmd: String):
 		 v2.1.7 - CLASSIFIED
 
 """
-	EventBus.emit_ascii_art(logo_art, Color.CYAN, 5.0)
+	EventBus.emit_ascii_art(logo_art, Globals.command_color,  5.0)
 
 func _cmd_banner(cmd: String):
 	var banner_art = """
@@ -125,29 +124,14 @@ func _cmd_banner(cmd: String):
 ║      DEPLOYING COUNTERMEASURES   ║
 ║         [ ! WARNING ! ]          ║
 ╚══════════════════════════════════╝"""
-	EventBus.emit_ascii_art(banner_art, Color.RED,  5.0)
-
-func _cmd_matrix(cmd: String):
-	var matrix_art = """    
-	╔═╗╔═╗╔╦╗╦═╗╦═╗ ╦
-	║║║╠═╣ ║ ╠╦╝║╔╝ ║
-	╩ ╩╩ ╩ ╩ ╩╚═╩╚╝ ╩
-┌─┐┌─┐┌┬┐┌─┐  ┬─┐┬─┐┬┌┐┌
-│  │ │ ││├┤   ├┬┘├─┤││││
-└─┘└─┘─┴┘└─┘  ┴└─┴ ┴┴┘└┘
- 0 1 1 0 1 0 0 1 1 0 1 0
-1 0 0 1 0 1 1 0 0 1 0 1 1
- 0 1 1 0 1 0 0 1 1 0 1 0
-
-"""
-	EventBus.emit_ascii_art(matrix_art, Color.GREEN,  5.0)
+	EventBus.emit_ascii_art(banner_art, Globals.command_color,  5.0)
 
 # Ability command handler
 func _cmd_ability(cmd: String):
 	# The ability commands are handled by the command input system
 	# This just provides feedback that the command was recognized
-	EventBus.emit_log_entry("Ability command recognized: %s" % cmd, Color.CYAN)
-	EventBus.emit_log_entry("Usage: %s [agent_name or number]" % cmd, Color.YELLOW)
+	EventBus.emit_log_entry("Ability command recognized: %s" % cmd)
+	EventBus.emit_log_entry("Usage: %s [agent_name or number]" % cmd)
 
 # Helper function to add new commands at runtime
 func add_custom_command(cmd_name: String, description: String, callback: Callable):

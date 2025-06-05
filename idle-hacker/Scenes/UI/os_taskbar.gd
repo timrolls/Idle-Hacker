@@ -197,15 +197,3 @@ func add_system_tray_icon(icon: String, tooltip: String) -> Label:
 	icon_label.add_theme_font_size_override("font_size", 16)
 	system_tray.add_child(icon_label)
 	return icon_label
-
-func show_notification(message: String, duration: float = 3.0):
-	var notif = Label.new()
-	notif.text = message
-	notif.add_theme_color_override("font_color", Color.GREEN)
-	notif.position = Vector2(20, 60)
-	add_child(notif)
-	
-	var tween = get_tree().create_tween()
-	tween.tween_interval(duration)
-	tween.tween_property(notif, "modulate:a", 0.0, 0.5)
-	tween.tween_callback(notif.queue_free)

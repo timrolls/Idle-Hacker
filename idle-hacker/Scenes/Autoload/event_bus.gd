@@ -40,13 +40,13 @@ func emit_agent_action(agent: String, action: String, target: String = ""):
 func emit_command(command: String):
 	command_input.emit(command)
 
-func emit_ascii_art(art: String, color: Color = Color.WHITE, speed: float = 0.5):
+func emit_ascii_art(art: String, color: Color = Globals.system_color, speed: float = 0.5):
 	ascii_art_display.emit(art, color, speed)
 
-func emit_multiline_log(lines: Array, color: Color = Color.WHITE, speed: float = 1.0):
+func emit_multiline_log(lines: Array, color: Color = Globals.system_color, speed: float = 1.0):
 	multiline_log_display.emit(lines, color, speed)
 
-func emit_log_entry(message: String, color: Color = Color.WHITE, speed: float = 1.0):
+func emit_log_entry(message: String, color: Color = Globals.system_color, speed: float = 1.0):
 	log_entry_display.emit(message, color, speed)
 
 func emit_clear_log():
@@ -54,7 +54,7 @@ func emit_clear_log():
 
 func emit_command_result(command: String, success: bool, message: String = ""):
 	if message != "":
-		emit_log_entry(message, Color.RED if not success else Color.GREEN)
+		emit_log_entry(message, Globals.error_color if not success else Globals.success_color)
 	command_entered.emit(command, success)
 
 #Note for signaling ascii art

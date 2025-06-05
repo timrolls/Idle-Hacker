@@ -17,3 +17,4 @@ mono_crash.*.json
 *.afdesign~lock~
 *.afphoto
 *.afphoto~lock~
+*.afphoto~lock~

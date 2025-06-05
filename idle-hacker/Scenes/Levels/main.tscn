@@ -90,13 +90,7 @@ color = Color(0, 0, 0, 1)
 offset_right = -256.0
 offset_bottom = -52.0
 theme = ExtResource("2_w0lsm")
-glitch_chance = 0.5
 cursor_blink_speed = 0.7
-server_response_color = Color(0.75493, 0.697731, 0.374945, 1)
-success_color = Color(0, 0.968273, 0.737207, 1)
-warning_color = Color(1, 1, 1, 1)
-help_color = Color(0.517184, 0.517184, 0.517184, 1)
-error_color = Color(0.830365, 0.330725, 0.381645, 1)
 
 [node name="LineEdit" parent="." instance=ExtResource("2_yjsus")]
 offset_right = 704.0

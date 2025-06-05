@@ -244,7 +244,7 @@ func refresh_recruitment_pool(free: bool = false):
 	recruitment_pool_refreshed.emit()
 	
 	if not free:
-		EventBus.emit_log_entry("Recruitment pool refreshed!", Color.CYAN)
+		EventBus.emit_log_entry("Recruitment pool refreshed!", Globals.success_color)
 
 func recruit_agent(index: int) -> Dictionary:
 	if index < 0 or index >= available_recruits.size():

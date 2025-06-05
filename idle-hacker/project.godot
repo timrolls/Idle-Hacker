@@ -11,12 +11,13 @@ config_version=5
 [application]
 
 config/name="Idle Hacker"
-run/main_scene="uid://gmmv84dx1otf"
+run/main_scene="uid://ku3c8ib8mtqm"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
+Globals="*res://Scenes/Autoload/globals.tscn"
 EventBus="*res://Scenes/Autoload/event_bus.gd"
 TerminalCommands="*res://Scenes/Autoload/terminal_commands.gd"
 
@@ -41,8 +42,6 @@ enabled=PackedStringArray("res://addons/script-ide/plugin.cfg")
 
 [physics]
 
-common/physics_ticks_per_second=120
-common/max_physics_steps_per_frame=16
 common/physics_interpolation=true
 
 [rendering]

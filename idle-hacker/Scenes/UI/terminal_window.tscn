@@ -11,14 +11,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_q2jdn")
-glitch_speed_multiplier = 0.9
-agent_action_color = Color(0.517647, 0.517647, 0.517647, 1)
-combat_event_color = Color(0.517647, 0.517647, 0.517647, 1)
-success_color = Color(0.517647, 0.517647, 0.517647, 1)
-warning_color = Color(0, 0.968273, 0.737207, 1)
-command_color = Color(0.517647, 0.517647, 0.517647, 1)
-help_color = Color(0.517647, 0.517647, 0.517647, 1)
-system_color = Color(0, 0.968273, 0.737207, 1)
+default_animation_duration = 100.0
+line_by_line_delay = 0.5
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 texture_filter = 1

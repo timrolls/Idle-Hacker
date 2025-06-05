@@ -43,8 +43,6 @@ func _ready():
 	create_starter_agents()
 	spawn_server()
 	
-	# Show welcome notification
-	taskbar.show_notification("System initialized. Welcome, operator.", 5.0)
 
 func setup_systems():
 	# Create recruitment system as autoload
@@ -253,7 +251,7 @@ func deploy_agent_to_combat(agent_data: Dictionary, _position: Vector2):
 	agents_container.add_child(agent)
 	deployed_agents.append(agent)
 	
-	EventBus.emit_log_entry("Deployed: %s [%s]" % [agent_data.name, agent_data.rarity], agent_data.color)
+	EventBus.emit_log_entry("Deployed: %s [%s]" % [agent_data.name, agent_data.rarity])
 
 func spawn_server():
 	var server_container = combat_view.get_node("ServerContainer")
@@ -301,7 +299,7 @@ func spawn_server():
 	server_container.add_child(current_server)
 	current_server.apply_server_type_stats()
 	
-	EventBus.emit_log_entry("Target: %s [Tier %d]" % [current_server.server_name, current_server.difficulty_tier], Color.ORANGE)
+	EventBus.emit_log_entry("Target: %s [Tier %d]" % [current_server.server_name, current_server.difficulty_tier])
 
 # UI Event Handlers
 func _on_app_switched(app_mode: OSTaskbar.AppMode):
@@ -314,7 +312,7 @@ func _on_app_switched(app_mode: OSTaskbar.AppMode):
 
 func _on_start_combat_pressed():
 	if combat_manager.is_combat_active:
-		EventBus.emit_log_entry("Combat already in progress!", Color.RED)
+		EventBus.emit_log_entry("Combat already in progress!")
 		return
 	
 	var alive_agents: Array[Agent] = []
@@ -323,8 +321,8 @@ func _on_start_combat_pressed():
 			alive_agents.append(agent)
 	
 	if alive_agents.is_empty():
-		EventBus.emit_log_entry("No agents available!", Color.RED)
-		taskbar.show_notification("Deploy agents from the Recruitment app!", 3.0)
+		EventBus.emit_log_entry("No agents available!")
+		EventBus.emit_log_entry("Deploy agents from the Recruitment app!")
 		return
 	
 	deployed_agents = alive_agents
@@ -340,12 +338,12 @@ func _on_combat_ended(victory: bool, stats: Dictionary):
 		add_child(marker)
 		
 		hardware_system.add_upgrade_points(1)
-		taskbar.show_notification("Victory! +1 Hardware Point earned.", 3.0)
+		EventBus.emit_log_entry("Victory! +1 Hardware Point earned.")
 		
 		await get_tree().create_timer(2.0).timeout
 		spawn_server()
 	else:
-		taskbar.show_notification("Mission Failed. Recruit new agents.", 3.0)
+		EventBus.emit_log_entry("Mission Failed. Recruit new agents.")
 
 func _on_deploy_pressed():
 	taskbar.set_active_app(OSTaskbar.AppMode.RECRUITMENT)
@@ -353,7 +351,7 @@ func _on_deploy_pressed():
 func _on_recruit_pressed(index: int):
 	var recruited = recruitment_system.recruit_agent(index)
 	if recruited:
-		taskbar.show_notification("Agent recruited: %s" % recruited.name, 2.0)
+		EventBus.emit_log_entry("Agent recruited: %s" % recruited.name)
 		update_recruitment_display()
 
 func _on_recruitment_refresh():

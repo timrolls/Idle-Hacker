@@ -256,7 +256,7 @@ func unlock_node(node_id: String, free: bool = false) -> bool:
 	node_unlocked.emit(node_id)
 	stats_updated.emit(current_stats)
 	
-	EventBus.emit_log_entry("Hardware Upgraded: %s" % node.name, Color.GREEN)
+	EventBus.emit_log_entry("Hardware Upgraded: %s" % node.name, Globals.success_color)
 	
 	return true
 
@@ -305,7 +305,7 @@ func get_total_stat_bonus(stat: String) -> float:
 
 func add_upgrade_points(amount: int):
 	upgrade_points += amount
-	EventBus.emit_log_entry("Gained %d upgrade points!" % amount, Color.YELLOW)
+	EventBus.emit_log_entry("Gained %d upgrade points!" % amount, Globals.success_color)
 
 func get_ram_cost_multiplier() -> float:
 	var efficiency = get_total_stat_bonus("ram_efficiency")
@@ -346,5 +346,5 @@ func reset_tree():
 			refunded += upgrade_nodes[node_id].cost
 	
 	upgrade_points += refunded
-	EventBus.emit_log_entry("Hardware reset! Refunded %d points." % refunded, Color.YELLOW)
+	EventBus.emit_log_entry("Hardware reset! Refunded %d points." % refunded, Globals.success_color)
 	stats_updated.emit(current_stats)

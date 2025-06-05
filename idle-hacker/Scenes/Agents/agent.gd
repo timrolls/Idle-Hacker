@@ -244,7 +244,7 @@ func activate_ability(ability_name: String) -> bool:
 		if ability.name == ability_name and ability.type == "active":
 			# Check cooldown
 			if ability_cooldowns[ability_name] > 0:
-				EventBus.emit_log_entry("%s: %s on cooldown (%.1fs)" % [agent_name, ability_name, ability_cooldowns[ability_name]], Color.ORANGE)
+				EventBus.emit_log_entry("%s: %s on cooldown (%.1fs)" % [agent_name, ability_name, ability_cooldowns[ability_name]])
 				return false
 			
 			# Activate ability
@@ -289,7 +289,7 @@ func _activate_overload():
 
 func _activate_shield():
 	# This would affect all agents - needs combat manager integration
-	EventBus.emit_log_entry("SHIELD WALL ACTIVATED - All agents protected!", Color.GREEN)
+	EventBus.emit_log_entry("SHIELD WALL ACTIVATED - All agents protected!")
 	
 	# Visual effect
 	var shield_rect = ColorRect.new()
@@ -312,18 +312,18 @@ func _activate_analyze():
 		"remaining": 5.0
 	}
 	active_buffs.append(buff)
-	EventBus.emit_log_entry("%s: Enemy patterns analyzed!" % agent_name, Color.CYAN)
+	EventBus.emit_log_entry("%s: Enemy patterns analyzed!" % agent_name)
 
 func _activate_mine():
 	var credits = randi_range(50, 100)
-	EventBus.emit_log_entry("%s: Mined %d credits!" % [agent_name, credits], Color.YELLOW)
+	EventBus.emit_log_entry("%s: Mined %d credits!" % [agent_name, credits])
 	# Would connect to currency system
 
 func _activate_swarm():
 	var original_speed = attack_timer.wait_time
 	attack_timer.wait_time = original_speed / 3.0
 	
-	EventBus.emit_log_entry("%s: SWARM MODE!" % agent_name, Color.PURPLE)
+	EventBus.emit_log_entry("%s: SWARM MODE!" % agent_name)
 	
 	# Reset after 5 seconds
 	await get_tree().create_timer(5.0).timeout
@@ -333,7 +333,7 @@ func _activate_swarm():
 func _activate_emergency():
 	var heal_amount = max_health * 0.5
 	heal(heal_amount)
-	EventBus.emit_log_entry("%s: Emergency repairs! +%.0f HP" % [agent_name, heal_amount], Color.GREEN)
+	EventBus.emit_log_entry("%s: Emergency repairs! +%.0f HP" % [agent_name, heal_amount])
 
 func _process(delta):
 	# Update ability cooldowns

@@ -57,10 +57,13 @@ text = "Enter command..."
 [node name="CommandPrompt" parent="UILayer/TerminalWindow" instance=ExtResource("5_prompt")]
 layout_mode = 0
 anchors_preset = 0
+anchor_top = 0.0
+anchor_bottom = 0.0
 offset_left = 10.0
 offset_top = 450.0
 offset_right = 390.0
 offset_bottom = 481.0
+grow_vertical = 1
 
 [node name="RightContent" type="Control" parent="UILayer"]
 layout_mode = 3
@@ -199,9 +202,9 @@ offset_left = 10.0
 offset_top = 105.0
 offset_right = 550.0
 offset_bottom = 250.0
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 2
 
 [node name="RefreshButton" type="Button" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0

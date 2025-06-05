@@ -47,11 +47,16 @@ func _ready():
 	setup_shape_viewport()
 	setup_recruitment_mode()
 	
+	# Debug print
+	print("AgentCard _ready called")
+	
 	# Start shape rotation
 	if shape_mesh:
 		var tween = create_tween()
 		tween.set_loops()
 		tween.tween_method(rotate_shape, 0.0, TAU, 4.0)
+	else:
+		print("Warning: shape_mesh not found in AgentCard")
 
 func setup_card_appearance():
 	# Set card size
@@ -104,6 +109,8 @@ func load_agent_data(agent: Agent = null, data: Dictionary = {}):
 	current_agent = agent
 	agent_data = data
 	
+	print("Loading agent data into card")
+	
 	# Determine data source
 	var display_data: Dictionary
 	if agent:
@@ -111,8 +118,10 @@ func load_agent_data(agent: Agent = null, data: Dictionary = {}):
 		display_data["type"] = agent.agent_type
 		display_data["abilities"] = agent.abilities
 		display_data["color"] = get_agent_type_color(agent.agent_type)
+		print("Using live agent data: ", display_data.name)
 	else:
 		display_data = data
+		print("Using dictionary data: ", data.get("name", "Unknown"))
 	
 	# Update UI elements
 	update_agent_type(display_data.get("type", "Unknown"))
@@ -178,13 +187,18 @@ func update_special_attack(abilities: Array):
 
 func update_wireframe_shape(agent_type: String):
 	if not shape_mesh:
+		print("Error: shape_mesh not found!")
 		return
+	
+	print("Creating wireframe shape for: ", agent_type)
 	
 	var shape_type = get_shape_for_agent_type(agent_type)
 	var wireframe_mesh = create_wireframe_mesh(shape_type)
 	
 	shape_mesh.mesh = wireframe_mesh
 	shape_mesh.material_override = create_wireframe_material()
+	
+	print("Wireframe shape created successfully")
 
 func get_shape_for_agent_type(agent_type: String) -> ShapeType:
 	match agent_type:

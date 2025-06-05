@@ -16,6 +16,9 @@ var combat_manager: CombatManager
 var deployed_agents: Array[Agent] = []
 var current_server: EnemyServer = null
 
+# Agent Card scene reference
+var agent_card_scene = preload("res://Scenes/Agents/agent_card.tscn")
+
 func _ready():
 	# Get node references if not set in editor
 	if not taskbar:
@@ -116,6 +119,8 @@ func setup_terminal_content_panels():
 func create_info_panel(name: String, title: String) -> Panel:
 	var panel = Panel.new()
 	panel.name = name
+	panel.position = Vector2(10, 10) if name == "EnemyInfo" else Vector2(10, 360)
+	panel.size = Vector2(530, 100) if name == "EnemyInfo" else Vector2(530, 100)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.15, 0.15, 0.15)
@@ -127,13 +132,18 @@ func create_info_panel(name: String, title: String) -> Panel:
 	var title_label = Label.new()
 	title_label.name = "Title"
 	title_label.text = title
+	title_label.position = Vector2(10, 5)
+	title_label.size = Vector2(200, 25)
 	title_label.add_theme_font_size_override("font_size", 16)
 	panel.add_child(title_label)
 	
 	# Container for cards
 	var card_container = HBoxContainer.new()
 	card_container.name = "CardContainer"
+	card_container.position = Vector2(10, 30)
+	card_container.size = Vector2(510, 65)
 	card_container.add_theme_constant_override("separation", 10)
+	card_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	panel.add_child(card_container)
 	
 	return panel
@@ -141,6 +151,8 @@ func create_info_panel(name: String, title: String) -> Panel:
 func create_combat_preview_panel() -> Panel:
 	var panel = Panel.new()
 	panel.name = "CombatPreview"
+	panel.position = Vector2(10, 120)
+	panel.size = Vector2(530, 230)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.1, 0.1)
@@ -152,13 +164,16 @@ func create_combat_preview_panel() -> Panel:
 	var title_label = Label.new()
 	title_label.name = "Title"
 	title_label.text = "Combat preview"
+	title_label.position = Vector2(10, 5)
+	title_label.size = Vector2(200, 25)
 	title_label.add_theme_font_size_override("font_size", 16)
 	panel.add_child(title_label)
 	
 	# Combat visualization area
 	var combat_area = Control.new()
 	combat_area.name = "CombatArea"
-	combat_area.custom_minimum_size = Vector2(600, 300)
+	combat_area.position = Vector2(10, 30)
+	combat_area.size = Vector2(510, 190)
 	panel.add_child(combat_area)
 	
 	# Agent container
@@ -222,15 +237,17 @@ func update_terminal_panels():
 		enemy_container.add_child(create_entity_card("Server", "Target"))
 	enemy_container.add_child(create_entity_card("Node", "Defense"))
 	
-	# Update agent info cards
+	# Update agent info cards using AgentCard component
 	var agent_container = terminal_content.get_node("AgentInfo/CardContainer")
 	for child in agent_container.get_children():
 		child.queue_free()
 	
-	# Add agent cards
+	# Add agent cards using the new AgentCard component
 	for agent in deployed_agents:
 		if is_instance_valid(agent):
-			agent_container.add_child(create_entity_card(agent.agent_name, agent.agent_type))
+			var agent_card = create_agent_card_for_combat(agent)
+			agent_card.custom_minimum_size = Vector2(150, 65)  # Fit in panel height
+			agent_container.add_child(agent_card)
 
 func setup_recruitment_display():
 	# Initial recruitment display update
@@ -253,14 +270,14 @@ func update_recruitment_display():
 	for child in recruits_container.get_children():
 		child.queue_free()
 	
-	# Create recruit cards
+	# Create recruit cards using AgentCard component
 	var available = recruitment_system.get_available_recruits()
 	for i in range(available.size()):
 		var agent_data = available[i]
-		var card = create_recruit_card(agent_data, i)
+		var card = create_recruitment_card(agent_data, i)
 		recruits_container.add_child(card)
 	
-	# Update owned agents display
+	# Update owned agents display using AgentCard component
 	if owned_container:
 		for child in owned_container.get_children():
 			child.queue_free()
@@ -288,100 +305,38 @@ func update_recruitment_display():
 		else:
 			ram_label.add_theme_color_override("font_color", Color.GREEN)
 
-func create_recruit_card(agent_data: Dictionary, index: int) -> Panel:
-	var card = Panel.new()
-	card.custom_minimum_size = Vector2(200, 250)
+# Helper functions for creating AgentCard instances
+
+func create_agent_card_for_combat(agent: Agent) -> AgentCard:
+	var card = agent_card_scene.instantiate() as AgentCard
 	
-	# Style
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.15, 0.15, 0.15)
-	style.border_color = agent_data.color
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(5)
-	card.add_theme_stylebox_override("panel", style)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 3)
-	vbox.position = Vector2(10, 10)
-	vbox.size = Vector2(180, 230)
-	card.add_child(vbox)
-	
-	# Agent info
-	var name_label = Label.new()
-	name_label.text = agent_data.name
-	name_label.add_theme_color_override("font_color", agent_data.color)
-	name_label.add_theme_font_size_override("font_size", 12)
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(name_label)
-	
-	var rarity_label = Label.new()
-	rarity_label.text = "[%s]" % agent_data.rarity.to_upper()
-	rarity_label.add_theme_color_override("font_color", agent_data.color)
-	rarity_label.add_theme_font_size_override("font_size", 10)
-	vbox.add_child(rarity_label)
-	
-	var type_label = Label.new()
-	type_label.text = agent_data.type
-	type_label.add_theme_font_size_override("font_size", 9)
-	vbox.add_child(type_label)
-	
-	var stats_label = Label.new()
-	stats_label.text = "HP: %.0f\nDMG: %.0f\nSPD: %.1f\nRAM: %d" % [
-		agent_data.stats.max_health,
-		agent_data.stats.damage,
-		agent_data.stats.attack_speed,
-		agent_data.stats.ram_cost
-	]
-	stats_label.add_theme_font_size_override("font_size", 9)
-	vbox.add_child(stats_label)
-	
-	# Spacer
-	vbox.add_spacer(true)
-	
-	# Recruit button
-	var recruit_btn = Button.new()
-	recruit_btn.text = "RECRUIT $%d" % agent_data.recruitment_cost
-	recruit_btn.pressed.connect(_on_recruit_pressed.bind(index))
-	vbox.add_child(recruit_btn)
+	# Set to display-only mode
+	card.card_mode = AgentCard.CardMode.DISPLAY_ONLY
+	card.load_agent_data(agent)
 	
 	return card
 
-func create_owned_agent_card(agent_data: Dictionary) -> Panel:
-	var card = Panel.new()
-	card.custom_minimum_size = Vector2(180, 200)
+func create_recruitment_card(agent_data: Dictionary, index: int) -> AgentCard:
+	var card = agent_card_scene.instantiate() as AgentCard
 	
-	# Style
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.1, 0.1)
-	style.border_color = agent_data.color
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(3)
-	card.add_theme_stylebox_override("panel", style)
+	# Set to recruitment mode
+	card.card_mode = AgentCard.CardMode.RECRUITMENT
+	card.custom_minimum_size = Vector2(250, 200)  # Larger for recruitment
+	card.load_agent_data(null, agent_data)
+	card.set_recruitment_cost(agent_data.recruitment_cost)
 	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 2)
-	vbox.position = Vector2(8, 8)
-	vbox.size = Vector2(164, 184)
-	card.add_child(vbox)
+	# Connect recruitment signal
+	card.agent_recruited.connect(_on_agent_card_recruited.bind(index))
 	
-	# Agent info
-	var name_label = Label.new()
-	name_label.text = agent_data.name
-	name_label.add_theme_color_override("font_color", agent_data.color)
-	name_label.add_theme_font_size_override("font_size", 11)
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(name_label)
+	return card
+
+func create_owned_agent_card(agent_data: Dictionary) -> AgentCard:
+	var card = agent_card_scene.instantiate() as AgentCard
 	
-	var info_label = Label.new()
-	info_label.text = "%s - RAM: %d" % [agent_data.type, agent_data.stats.ram_cost]
-	info_label.add_theme_font_size_override("font_size", 9)
-	vbox.add_child(info_label)
-	
-	# Deploy button
-	var deploy_btn = Button.new()
-	deploy_btn.text = "DEPLOY"
-	deploy_btn.pressed.connect(_on_deploy_pressed.bind(agent_data))
-	vbox.add_child(deploy_btn)
+	# Set to display mode for owned agents
+	card.card_mode = AgentCard.CardMode.DISPLAY_ONLY
+	card.custom_minimum_size = Vector2(250, 180)  # Larger for owned agents
+	card.load_agent_data(null, agent_data)
 	
 	return card
 
@@ -535,13 +490,13 @@ func _on_combat_ended(victory: bool, stats: Dictionary):
 	else:
 		EventBus.emit_log_entry("Mission Failed. Recruit new agents.")
 
-func _on_recruit_pressed(index: int):
+func _on_agent_card_recruited(index: int, agent_card: AgentCard):
 	var recruited = recruitment_system.recruit_agent(index)
 	if recruited:
 		EventBus.emit_log_entry("Agent recruited: %s" % recruited.name)
 		update_recruitment_display()
 
-func _on_deploy_pressed(agent_data: Dictionary):
+func _on_deployment_requested(agent_data: Dictionary):
 	# Deploy owned agent to combat
 	deploy_agent_to_combat(agent_data, Vector2(-50, randf_range(-100, 100)))
 

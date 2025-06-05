@@ -389,3 +389,15 @@ func calculate_damage() -> float:
 				active_buffs.erase(buff)
 	
 	return final_damage
+	
+
+
+# Method for AgentCard to get attack timer progress
+func get_attack_timer_progress() -> Dictionary:
+	if attack_timer and attack_timer.wait_time > 0:
+		var time_left = attack_timer.time_left if not attack_timer.is_stopped() else 0.0
+		return {
+			"current": attack_timer.wait_time - time_left,
+			"max": attack_timer.wait_time
+		}
+	return {"current": 0.0, "max": 1.0}

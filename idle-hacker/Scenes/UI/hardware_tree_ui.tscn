@@ -52,7 +52,7 @@ modulate = Color(1, 1, 1, 0.9)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 16.0
+offset_left = 680.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = 200.0
@@ -61,10 +61,10 @@ text = "Upgrade Points: 0"
 
 [node name="ResetButton" type="Button" parent="UI"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 60.0
-offset_right = 150.0
-offset_bottom = 90.0
+offset_left = 688.0
+offset_top = 64.0
+offset_right = 818.0
+offset_bottom = 95.0
 text = "Reset Tree"
 
 [node name="StatsPanel" type="Panel" parent="UI"]
@@ -72,8 +72,9 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 680.0
 offset_top = 184.0
-offset_right = -704.0
+offset_right = -24.0
 offset_bottom = -28.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -83,6 +84,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 10.0
+offset_right = -8.0
+offset_bottom = -10.0
 grow_horizontal = 2
 grow_vertical = 2
 

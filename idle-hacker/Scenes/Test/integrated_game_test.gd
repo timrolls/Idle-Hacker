@@ -2,10 +2,9 @@ extends Node2D
 
 # Views - These will be set in the editor
 @export var taskbar: OSTaskbar
-@export var combat_view: Control
+@export var terminal_view: Control  # Combined terminal + combat
 @export var hardware_view: Control
 @export var recruitment_view: Control
-@export var terminal_view: Control
 
 # Systems
 var recruitment_system: AgentRecruitmentSystem
@@ -20,14 +19,12 @@ func _ready():
 	# Get node references if not set in editor
 	if not taskbar:
 		taskbar = $UILayer/OSTaskbar
-	if not combat_view:
-		combat_view = $UILayer/CombatView
+	if not terminal_view:
+		terminal_view = $UILayer/TerminalView
 	if not hardware_view:
 		hardware_view = $UILayer/HardwareView
 	if not recruitment_view:
 		recruitment_view = $UILayer/RecruitmentView
-	if not terminal_view:
-		terminal_view = $UILayer/TerminalView
 	
 	# Create systems
 	setup_systems()
@@ -43,6 +40,8 @@ func _ready():
 	create_starter_agents()
 	spawn_server()
 	
+	# Setup terminal view panels
+	setup_terminal_panels()
 
 func setup_systems():
 	# Create recruitment system as autoload
@@ -70,24 +69,18 @@ func setup_systems():
 
 func setup_ui_connections():
 	# Register views with taskbar
-	#taskbar.register_view_container(OSTaskbar.AppMode.COMBAT, combat_view)
 	taskbar.register_view_container(OSTaskbar.AppMode.TERMINAL, terminal_view)
 	taskbar.register_view_container(OSTaskbar.AppMode.HARDWARE, hardware_view)
 	taskbar.register_view_container(OSTaskbar.AppMode.RECRUITMENT, recruitment_view)
 	
-	
 	# Connect taskbar app switching
 	taskbar.app_switched.connect(_on_app_switched)
 	
-	# Add system tray icons
+	# Add taskbar resources and icons
+	taskbar.add_resource_label("Resources")
 	taskbar.add_system_tray_icon("📡", "Network Status: ONLINE")
 	taskbar.add_system_tray_icon("🛡️", "Security: ACTIVE")
-	
-	# Connect combat buttons
-	var start_btn = combat_view.get_node("CombatPanel/VBoxContainer/StartButton")
-	var deploy_btn = combat_view.get_node("CombatPanel/VBoxContainer/DeployButton")
-	start_btn.pressed.connect(_on_start_combat_pressed)
-	deploy_btn.pressed.connect(_on_deploy_pressed)
+	taskbar.add_alert_box()
 	
 	# Connect recruitment refresh
 	var refresh_btn = recruitment_view.get_node("Panel/RefreshButton")
@@ -95,6 +88,145 @@ func setup_ui_connections():
 	
 	# Setup recruitment UI
 	setup_recruitment_display()
+
+func setup_terminal_panels():
+	# Create/update the terminal view layout panels
+	var enemy_info = terminal_view.get_node_or_null("EnemyInfo")
+	if not enemy_info:
+		enemy_info = create_info_panel("EnemyInfo", "Enemy Info")
+		terminal_view.add_child(enemy_info)
+	
+	var combat_preview = terminal_view.get_node_or_null("CombatPreview")
+	if not combat_preview:
+		combat_preview = create_combat_preview_panel()
+		terminal_view.add_child(combat_preview)
+	
+	var agent_info = terminal_view.get_node_or_null("AgentInfo")
+	if not agent_info:
+		agent_info = create_info_panel("AgentInfo", "Agent Info")
+		terminal_view.add_child(agent_info)
+	
+	# Update panels with initial data
+	update_terminal_panels()
+
+func create_info_panel(name: String, title: String) -> Panel:
+	var panel = Panel.new()
+	panel.name = name
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.15, 0.15, 0.15)
+	style.border_color = Color(0.3, 0.3, 0.3)
+	style.set_border_width_all(2)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	# Title
+	var title_label = Label.new()
+	title_label.name = "Title"
+	title_label.text = title
+	title_label.add_theme_font_size_override("font_size", 16)
+	panel.add_child(title_label)
+	
+	# Container for cards
+	var card_container = HBoxContainer.new()
+	card_container.name = "CardContainer"
+	card_container.add_theme_constant_override("separation", 10)
+	panel.add_child(card_container)
+	
+	return panel
+
+func create_combat_preview_panel() -> Panel:
+	var panel = Panel.new()
+	panel.name = "CombatPreview"
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.1, 0.1)
+	style.border_color = Color(0.3, 0.3, 0.3)
+	style.set_border_width_all(2)
+	panel.add_theme_stylebox_override("panel", style)
+	
+	# Title
+	var title_label = Label.new()
+	title_label.name = "Title"
+	title_label.text = "Combat preview"
+	title_label.add_theme_font_size_override("font_size", 16)
+	panel.add_child(title_label)
+	
+	# Combat visualization area
+	var combat_area = Control.new()
+	combat_area.name = "CombatArea"
+	combat_area.custom_minimum_size = Vector2(600, 300)
+	panel.add_child(combat_area)
+	
+	# Agent container
+	var agents_container = Node2D.new()
+	agents_container.name = "AgentsContainer"
+	combat_area.add_child(agents_container)
+	
+	# Server container
+	var server_container = Node2D.new()
+	server_container.name = "ServerContainer"
+	combat_area.add_child(server_container)
+	
+	return panel
+
+func create_entity_card(entity_name: String, entity_type: String) -> Panel:
+	var card = Panel.new()
+	card.custom_minimum_size = Vector2(150, 100)
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.2, 0.2, 0.2)
+	style.border_color = Color(0.4, 0.4, 0.4)
+	style.set_border_width_all(1)
+	card.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 5)
+	card.add_child(vbox)
+	
+	# Name
+	var name_label = Label.new()
+	name_label.text = entity_name
+	name_label.add_theme_font_size_override("font_size", 14)
+	vbox.add_child(name_label)
+	
+	# Type
+	var type_label = Label.new()
+	type_label.text = entity_type
+	type_label.add_theme_font_size_override("font_size", 10)
+	type_label.modulate = Color(0.7, 0.7, 0.7)
+	vbox.add_child(type_label)
+	
+	# Stats
+	var stats_label = Label.new()
+	stats_label.text = "Stats and HP"
+	stats_label.add_theme_font_size_override("font_size", 10)
+	vbox.add_child(stats_label)
+	
+	return card
+
+func update_terminal_panels():
+	# Update enemy info cards
+	var enemy_container = terminal_view.get_node("EnemyInfo/CardContainer")
+	for child in enemy_container.get_children():
+		child.queue_free()
+	
+	# Add placeholder enemy cards
+	enemy_container.add_child(create_entity_card("Node", "Defense"))
+	if current_server:
+		enemy_container.add_child(create_entity_card(current_server.server_name, "Server"))
+	else:
+		enemy_container.add_child(create_entity_card("Server", "Target"))
+	enemy_container.add_child(create_entity_card("Node", "Defense"))
+	
+	# Update agent info cards
+	var agent_container = terminal_view.get_node("AgentInfo/CardContainer")
+	for child in agent_container.get_children():
+		child.queue_free()
+	
+	# Add agent cards
+	for agent in deployed_agents:
+		if is_instance_valid(agent):
+			agent_container.add_child(create_entity_card(agent.agent_name, agent.agent_type))
 
 func setup_recruitment_display():
 	# Initial recruitment display update
@@ -212,11 +344,12 @@ func create_starter_agents():
 		deploy_agent_to_combat(agent_data, positions[i])
 
 func deploy_agent_to_combat(agent_data: Dictionary, _position: Vector2):
-	var agents_container = combat_view.get_node("AgentsContainer")
+	var combat_area = terminal_view.get_node("CombatPreview/CombatArea")
+	var agents_container = combat_area.get_node("AgentsContainer")
 	
 	# Create agent dynamically
 	var agent = Agent.new()
-	agent.position = _position
+	agent.position = Vector2(100 + deployed_agents.size() * 60, 150)
 	
 	# Create visual components
 	var sprite = Sprite2D.new()
@@ -253,15 +386,20 @@ func deploy_agent_to_combat(agent_data: Dictionary, _position: Vector2):
 	deployed_agents.append(agent)
 	
 	EventBus.emit_log_entry("Deployed: %s [%s]" % [agent_data.name, agent_data.rarity])
+	
+	# Update terminal panels
+	update_terminal_panels()
 
 func spawn_server():
-	var server_container = combat_view.get_node("ServerContainer")
+	var combat_area = terminal_view.get_node("CombatPreview/CombatArea")
+	var server_container = combat_area.get_node("ServerContainer")
 	
 	if current_server and is_instance_valid(current_server):
 		current_server.queue_free()
 	
 	# Create server dynamically
 	current_server = EnemyServer.new()
+	current_server.position = Vector2(400, 150)
 	
 	# Create visual components
 	var sprite = ColorRect.new()
@@ -301,17 +439,11 @@ func spawn_server():
 	current_server.apply_server_type_stats()
 	
 	EventBus.emit_log_entry("Target: %s [Tier %d]" % [current_server.server_name, current_server.difficulty_tier])
+	
+	# Update terminal panels
+	update_terminal_panels()
 
-# UI Event Handlers
-func _on_app_switched(app_mode: OSTaskbar.AppMode):
-	match app_mode:
-		OSTaskbar.AppMode.HARDWARE:
-			if hardware_view.has_method("update_display"):
-				hardware_view.update_display()
-		OSTaskbar.AppMode.RECRUITMENT:
-			update_recruitment_display()
-
-func _on_start_combat_pressed():
+func start_combat():
 	if combat_manager.is_combat_active:
 		EventBus.emit_log_entry("Combat already in progress!")
 		return
@@ -328,11 +460,17 @@ func _on_start_combat_pressed():
 	
 	deployed_agents = alive_agents
 	combat_manager.start_combat(deployed_agents, current_server)
-	combat_view.get_node("CombatPanel/VBoxContainer/StartButton").disabled = true
+
+# UI Event Handlers
+func _on_app_switched(app_mode: OSTaskbar.AppMode):
+	match app_mode:
+		OSTaskbar.AppMode.HARDWARE:
+			if hardware_view.has_method("update_display"):
+				hardware_view.update_display()
+		OSTaskbar.AppMode.RECRUITMENT:
+			update_recruitment_display()
 
 func _on_combat_ended(victory: bool, stats: Dictionary):
-	combat_view.get_node("CombatPanel/VBoxContainer/StartButton").disabled = false
-	
 	if victory:
 		var marker = Node.new()
 		marker.add_to_group("defeated_servers")
@@ -343,11 +481,9 @@ func _on_combat_ended(victory: bool, stats: Dictionary):
 		
 		await get_tree().create_timer(2.0).timeout
 		spawn_server()
+		update_terminal_panels()
 	else:
 		EventBus.emit_log_entry("Mission Failed. Recruit new agents.")
-
-func _on_deploy_pressed():
-	taskbar.set_active_app(OSTaskbar.AppMode.RECRUITMENT)
 
 func _on_recruit_pressed(index: int):
 	var recruited = recruitment_system.recruit_agent(index)
@@ -363,6 +499,13 @@ func _on_agent_recruited(agent_data: Dictionary):
 
 func _on_command_input(command: String):
 	var parts = command.split(" ")
+	
+	# Check for combat commands
+	if command == "start" or command == "attack":
+		start_combat()
+		return
+	
+	# Check for ability commands
 	if parts.size() < 2:
 		return
 	

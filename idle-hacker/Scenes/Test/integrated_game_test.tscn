@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://ku3c8ib8mtqm"]
+[gd_scene load_steps=6 format=3 uid="uid://ku3c8ib8mtqm"]
 
 [ext_resource type="Script" uid="uid://b7d51xutr5e2h" path="res://Scenes/Test/integrated_game_test.gd" id="1_test"]
 [ext_resource type="PackedScene" uid="uid://dv6gfivoemapv" path="res://Scenes/UI/os_taskbar.tscn" id="2_taskbar"]
@@ -6,73 +6,133 @@
 [ext_resource type="PackedScene" uid="uid://dlnpl14u8qrre" path="res://Scenes/UI/terminal_window.tscn" id="4_terminal"]
 [ext_resource type="PackedScene" uid="uid://bv7p5pmifa37j" path="res://Scenes/UI/command_prompt.tscn" id="5_prompt"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.1, 0.1, 0.1, 1)
-
-[node name="IntegratedGameTest" type="Node2D" node_paths=PackedStringArray("taskbar", "combat_view", "hardware_view", "recruitment_view", "terminal_view")]
+[node name="IntegratedGameTest" type="Node2D" node_paths=PackedStringArray("taskbar", "terminal_view", "hardware_view", "recruitment_view")]
 script = ExtResource("1_test")
 taskbar = NodePath("UILayer/OSTaskbar")
-combat_view = NodePath("UILayer/CombatView")
+terminal_view = NodePath("UILayer/TerminalView")
 hardware_view = NodePath("UILayer/HardwareView")
 recruitment_view = NodePath("UILayer/RecruitmentView")
-terminal_view = NodePath("UILayer/TerminalView")
-
-[node name="Background" type="CanvasLayer" parent="."]
-
-[node name="Background" type="ColorRect" parent="Background"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 43.2
-offset_bottom = 43.2
-color = Color(3.85046e-06, 0.481812, 0.636256, 1)
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 
 [node name="OSTaskbar" parent="UILayer" instance=ExtResource("2_taskbar")]
 
-[node name="CombatView" type="Control" parent="UILayer"]
+[node name="TerminalView" type="Control" parent="UILayer"]
 layout_mode = 3
 anchor_top = 0.08
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="AgentsContainer" type="Node2D" parent="UILayer/CombatView"]
-position = Vector2(584, 270)
+[node name="Background" type="ColorRect" parent="UILayer/TerminalView"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.05, 0.05, 1)
 
-[node name="ServerContainer" type="Node2D" parent="UILayer/CombatView"]
-position = Vector2(760, 270)
+[node name="EnemyInfo" type="Panel" parent="UILayer/TerminalView"]
+layout_mode = 0
+offset_left = 448.0
+offset_top = 13.0
+offset_right = 942.0
+offset_bottom = 125.0
 
-[node name="CombatPanel" type="Panel" parent="UILayer/CombatView"]
+[node name="Title" type="Label" parent="UILayer/TerminalView/EnemyInfo"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 10.0
-offset_right = 160.0
-offset_bottom = 160.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+offset_top = 5.0
+offset_right = 200.0
+offset_bottom = 25.0
+theme_override_font_sizes/font_size = 16
+text = "Enemy Info"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/CombatView/CombatPanel"]
+[node name="CardContainer" type="HBoxContainer" parent="UILayer/TerminalView/EnemyInfo"]
 layout_mode = 0
 offset_left = 10.0
-offset_top = 10.0
-offset_right = 140.0
-offset_bottom = 140.0
+offset_top = 30.0
+offset_right = 480.0
+offset_bottom = 95.0
+theme_override_constants/separation = 10
+alignment = 1
 
-[node name="StartButton" type="Button" parent="UILayer/CombatView/CombatPanel/VBoxContainer"]
-layout_mode = 2
-text = "Start Combat"
+[node name="CombatPreview" type="Panel" parent="UILayer/TerminalView"]
+layout_mode = 0
+offset_left = 448.0
+offset_top = 132.8
+offset_right = 944.0
+offset_bottom = 365.8
 
-[node name="DeployButton" type="Button" parent="UILayer/CombatView/CombatPanel/VBoxContainer"]
-layout_mode = 2
-text = "Deploy Agent"
+[node name="Title" type="Label" parent="UILayer/TerminalView/CombatPreview"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = 200.0
+offset_bottom = 25.0
+theme_override_font_sizes/font_size = 16
+text = "Combat preview"
 
-[node name="InfoLabel" type="Label" parent="UILayer/CombatView/CombatPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "Type ability commands:
-overload 1
-shield 2
-analyze 3"
+[node name="CombatArea" type="Control" parent="UILayer/TerminalView/CombatPreview"]
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 30.0
+offset_right = 472.0
+offset_bottom = 220.0
+
+[node name="AgentsContainer" type="Node2D" parent="UILayer/TerminalView/CombatPreview/CombatArea"]
+position = Vector2(-10, -25.2)
+
+[node name="ServerContainer" type="Node2D" parent="UILayer/TerminalView/CombatPreview/CombatArea"]
+position = Vector2(-10, -25.2)
+
+[node name="AgentInfo" type="Panel" parent="UILayer/TerminalView"]
+layout_mode = 0
+offset_left = 448.0
+offset_top = 373.0
+offset_right = 944.0
+offset_bottom = 469.0
+
+[node name="Title" type="Label" parent="UILayer/TerminalView/AgentInfo"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = 200.0
+offset_bottom = 25.0
+theme_override_font_sizes/font_size = 16
+text = "Agent Info"
+
+[node name="CardContainer" type="HBoxContainer" parent="UILayer/TerminalView/AgentInfo"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 30.0
+offset_right = 480.0
+offset_bottom = 95.0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Terminal" type="Panel" parent="UILayer/TerminalView"]
+layout_mode = 1
+offset_left = 16.0
+offset_top = 13.0
+offset_right = 440.0
+offset_bottom = 469.0
+
+[node name="TerminalWindow" parent="UILayer/TerminalView/Terminal" instance=ExtResource("4_terminal")]
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 408.0
+offset_bottom = 392.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="CommandPrompt" parent="UILayer/TerminalView/Terminal" instance=ExtResource("5_prompt")]
+layout_mode = 1
+offset_left = 16.0
+offset_top = -48.0
+offset_right = 408.0
+offset_bottom = -16.0
 
 [node name="HardwareView" parent="UILayer" instance=ExtResource("3_hardware")]
 visible = false
@@ -135,7 +195,7 @@ layout_mode = 0
 offset_left = 20.0
 offset_top = 150.0
 offset_right = 620.0
-offset_bottom = 500.0
+offset_bottom = 450.0
 
 [node name="RecruitsContainer" type="GridContainer" parent="UILayer/RecruitmentView/Panel/ScrollContainer"]
 layout_mode = 2
@@ -158,25 +218,4 @@ layout_mode = 0
 offset_left = 650.0
 offset_top = 180.0
 offset_right = 900.0
-offset_bottom = 500.0
-
-[node name="TerminalView" type="Control" parent="UILayer"]
-layout_mode = 3
-anchor_top = 0.08
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="TerminalWindow" parent="UILayer/TerminalView" instance=ExtResource("4_terminal")]
-layout_mode = 1
-anchors_preset = -1
-anchor_bottom = 0.9
-offset_bottom = -10.12
-
-[node name="CommandPrompt" parent="UILayer/TerminalView" instance=ExtResource("5_prompt")]
-layout_mode = 0
-anchors_preset = 0
-anchor_top = 0.9
-anchor_bottom = 0.9
-offset_top = 0.0
-offset_bottom = 31.0
-grow_vertical = 1
+offset_bottom = 450.0

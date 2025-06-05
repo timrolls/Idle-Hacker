@@ -70,10 +70,11 @@ func setup_systems():
 
 func setup_ui_connections():
 	# Register views with taskbar
-	taskbar.register_view_container(OSTaskbar.AppMode.COMBAT, combat_view)
+	#taskbar.register_view_container(OSTaskbar.AppMode.COMBAT, combat_view)
+	taskbar.register_view_container(OSTaskbar.AppMode.TERMINAL, terminal_view)
 	taskbar.register_view_container(OSTaskbar.AppMode.HARDWARE, hardware_view)
 	taskbar.register_view_container(OSTaskbar.AppMode.RECRUITMENT, recruitment_view)
-	taskbar.register_view_container(OSTaskbar.AppMode.TERMINAL, terminal_view)
+	
 	
 	# Connect taskbar app switching
 	taskbar.app_switched.connect(_on_app_switched)

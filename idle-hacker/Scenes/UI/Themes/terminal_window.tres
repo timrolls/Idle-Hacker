@@ -59,13 +59,13 @@ expand_margin_bottom = 4.0
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ifw32"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_on2jq"]
-bg_color = Color(0, 0.968273, 0.737207, 1)
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nhifg"]
-bg_color = Color(0.542456, 1, 0.832246, 1)
+bg_color = Color(0.266667, 0.266667, 0.266667, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bcwi"]
-bg_color = Color(0, 0.61349, 0.462537, 1)
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
 
 [resource]
 default_font = ExtResource("1_on2jq")

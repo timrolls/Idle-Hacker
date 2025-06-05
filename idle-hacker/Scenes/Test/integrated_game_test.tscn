@@ -6,37 +6,82 @@
 [ext_resource type="PackedScene" uid="uid://dlnpl14u8qrre" path="res://Scenes/UI/terminal_window.tscn" id="4_terminal"]
 [ext_resource type="PackedScene" uid="uid://bv7p5pmifa37j" path="res://Scenes/UI/command_prompt.tscn" id="5_prompt"]
 
-[node name="IntegratedGameTest" type="Node2D" node_paths=PackedStringArray("taskbar", "terminal_view", "hardware_view", "recruitment_view")]
+[node name="IntegratedGameTest" type="Node2D" node_paths=PackedStringArray("taskbar")]
 script = ExtResource("1_test")
 taskbar = NodePath("UILayer/OSTaskbar")
-terminal_view = NodePath("UILayer/TerminalView")
-hardware_view = NodePath("UILayer/HardwareView")
-recruitment_view = NodePath("UILayer/RecruitmentView")
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 
 [node name="OSTaskbar" parent="UILayer" instance=ExtResource("2_taskbar")]
 
-[node name="TerminalView" type="Control" parent="UILayer"]
-layout_mode = 3
+[node name="Background" type="ColorRect" parent="UILayer"]
+anchors_preset = -1
 anchor_top = 0.08
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="Background" type="ColorRect" parent="UILayer/TerminalView"]
-layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.05, 0.05, 0.05, 1)
 
-[node name="EnemyInfo" type="Panel" parent="UILayer/TerminalView"]
-layout_mode = 0
-offset_left = 448.0
-offset_top = 13.0
-offset_right = 942.0
-offset_bottom = 125.0
+[node name="TerminalWindow" type="Panel" parent="UILayer"]
+anchors_preset = -1
+anchor_top = 0.08
+anchor_bottom = 1.0
+offset_right = 400.0
 
-[node name="Title" type="Label" parent="UILayer/TerminalView/EnemyInfo"]
+[node name="Title" type="Label" parent="UILayer/TerminalWindow"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 16
+text = "Terminal Window"
+
+[node name="Terminal" parent="UILayer/TerminalWindow" instance=ExtResource("4_terminal")]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 10.0
+offset_top = 40.0
+offset_right = 390.0
+offset_bottom = 420.0
+
+[node name="CommandLabel" type="Label" parent="UILayer/TerminalWindow"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 425.0
+offset_right = 390.0
+offset_bottom = 445.0
+text = "Enter command..."
+
+[node name="CommandPrompt" parent="UILayer/TerminalWindow" instance=ExtResource("5_prompt")]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 450.0
+offset_right = 390.0
+offset_bottom = 481.0
+
+[node name="RightContent" type="Control" parent="UILayer"]
+layout_mode = 3
+anchor_left = 0.417
+anchor_top = 0.08
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TerminalContent" type="Control" parent="UILayer/RightContent"]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="EnemyInfo" type="Panel" parent="UILayer/RightContent/TerminalContent"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 550.0
+offset_bottom = 110.0
+
+[node name="Title" type="Label" parent="UILayer/RightContent/TerminalContent/EnemyInfo"]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 5.0
@@ -45,23 +90,23 @@ offset_bottom = 25.0
 theme_override_font_sizes/font_size = 16
 text = "Enemy Info"
 
-[node name="CardContainer" type="HBoxContainer" parent="UILayer/TerminalView/EnemyInfo"]
+[node name="CardContainer" type="HBoxContainer" parent="UILayer/RightContent/TerminalContent/EnemyInfo"]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 30.0
-offset_right = 480.0
+offset_right = 530.0
 offset_bottom = 95.0
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="CombatPreview" type="Panel" parent="UILayer/TerminalView"]
+[node name="CombatPreview" type="Panel" parent="UILayer/RightContent/TerminalContent"]
 layout_mode = 0
-offset_left = 448.0
-offset_top = 132.8
-offset_right = 944.0
-offset_bottom = 365.8
+offset_left = 10.0
+offset_top = 120.0
+offset_right = 550.0
+offset_bottom = 350.0
 
-[node name="Title" type="Label" parent="UILayer/TerminalView/CombatPreview"]
+[node name="Title" type="Label" parent="UILayer/RightContent/TerminalContent/CombatPreview"]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 5.0
@@ -70,27 +115,25 @@ offset_bottom = 25.0
 theme_override_font_sizes/font_size = 16
 text = "Combat preview"
 
-[node name="CombatArea" type="Control" parent="UILayer/TerminalView/CombatPreview"]
+[node name="CombatArea" type="Control" parent="UILayer/RightContent/TerminalContent/CombatPreview"]
 anchors_preset = 0
 offset_left = 10.0
 offset_top = 30.0
-offset_right = 472.0
+offset_right = 530.0
 offset_bottom = 220.0
 
-[node name="AgentsContainer" type="Node2D" parent="UILayer/TerminalView/CombatPreview/CombatArea"]
-position = Vector2(-10, -25.2)
+[node name="AgentsContainer" type="Node2D" parent="UILayer/RightContent/TerminalContent/CombatPreview/CombatArea"]
 
-[node name="ServerContainer" type="Node2D" parent="UILayer/TerminalView/CombatPreview/CombatArea"]
-position = Vector2(-10, -25.2)
+[node name="ServerContainer" type="Node2D" parent="UILayer/RightContent/TerminalContent/CombatPreview/CombatArea"]
 
-[node name="AgentInfo" type="Panel" parent="UILayer/TerminalView"]
+[node name="AgentInfo" type="Panel" parent="UILayer/RightContent/TerminalContent"]
 layout_mode = 0
-offset_left = 448.0
-offset_top = 373.0
-offset_right = 944.0
-offset_bottom = 469.0
+offset_left = 10.0
+offset_top = 360.0
+offset_right = 550.0
+offset_bottom = 460.0
 
-[node name="Title" type="Label" parent="UILayer/TerminalView/AgentInfo"]
+[node name="Title" type="Label" parent="UILayer/RightContent/TerminalContent/AgentInfo"]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 5.0
@@ -99,123 +142,99 @@ offset_bottom = 25.0
 theme_override_font_sizes/font_size = 16
 text = "Agent Info"
 
-[node name="CardContainer" type="HBoxContainer" parent="UILayer/TerminalView/AgentInfo"]
+[node name="CardContainer" type="HBoxContainer" parent="UILayer/RightContent/TerminalContent/AgentInfo"]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 30.0
-offset_right = 480.0
+offset_right = 530.0
 offset_bottom = 95.0
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Terminal" type="Panel" parent="UILayer/TerminalView"]
-layout_mode = 1
-offset_left = 16.0
-offset_top = 13.0
-offset_right = 440.0
-offset_bottom = 469.0
-
-[node name="TerminalWindow" parent="UILayer/TerminalView/Terminal" instance=ExtResource("4_terminal")]
-layout_mode = 1
+[node name="RecruitmentContent" type="Control" parent="UILayer/RightContent"]
+visible = false
 anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = 408.0
-offset_bottom = 392.0
-grow_horizontal = 1
-grow_vertical = 1
-
-[node name="CommandPrompt" parent="UILayer/TerminalView/Terminal" instance=ExtResource("5_prompt")]
-layout_mode = 1
-offset_left = 16.0
-offset_top = -48.0
-offset_right = 408.0
-offset_bottom = -16.0
-
-[node name="HardwareView" parent="UILayer" instance=ExtResource("3_hardware")]
-visible = false
-anchors_preset = -1
-anchor_top = 0.08
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="RecruitmentView" type="Control" parent="UILayer"]
-visible = false
-layout_mode = 3
-anchor_top = 0.08
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Panel" type="Panel" parent="UILayer/RecruitmentView"]
+[node name="Title" type="Label" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 300.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 20
+text = "Agent Recruitment Network"
 
-[node name="Title" type="Label" parent="UILayer/RecruitmentView/Panel"]
+[node name="MoneyLabel" type="Label" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 400.0
-offset_bottom = 50.0
-theme_override_font_sizes/font_size = 24
-text = "AGENT RECRUITMENT NETWORK"
-
-[node name="MoneyLabel" type="Label" parent="UILayer/RecruitmentView/Panel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 60.0
+offset_left = 10.0
+offset_top = 45.0
 offset_right = 200.0
-offset_bottom = 80.0
+offset_bottom = 65.0
+theme_override_font_sizes/font_size = 16
 text = "Credits: $1000"
 
-[node name="RAMLabel" type="Label" parent="UILayer/RecruitmentView/Panel"]
+[node name="RAMLabel" type="Label" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-offset_left = 20.0
+offset_left = 300.0
+offset_top = 45.0
+offset_right = 450.0
+offset_bottom = 65.0
+theme_override_font_sizes/font_size = 16
+text = "RAM: 0 / 8"
+
+[node name="AvailableLabel" type="Label" parent="UILayer/RightContent/RecruitmentContent"]
+layout_mode = 0
+offset_left = 10.0
 offset_top = 80.0
 offset_right = 200.0
 offset_bottom = 100.0
-text = "RAM: 0 / 8"
+theme_override_font_sizes/font_size = 14
+text = "Available Recruits"
 
-[node name="RefreshButton" type="Button" parent="UILayer/RecruitmentView/Panel"]
+[node name="RecruitsGrid" type="GridContainer" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 110.0
-offset_right = 160.0
-offset_bottom = 140.0
-text = "Refresh Pool ($50)"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="UILayer/RecruitmentView/Panel"]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 150.0
-offset_right = 620.0
-offset_bottom = 450.0
-
-[node name="RecruitsContainer" type="GridContainer" parent="UILayer/RecruitmentView/Panel/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+offset_left = 10.0
+offset_top = 105.0
+offset_right = 550.0
+offset_bottom = 250.0
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 3
 
-[node name="OwnedLabel" type="Label" parent="UILayer/RecruitmentView/Panel"]
+[node name="RefreshButton" type="Button" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-offset_left = 650.0
-offset_top = 150.0
-offset_right = 800.0
-offset_bottom = 170.0
-text = "Owned Agents:"
+offset_left = 10.0
+offset_top = 260.0
+offset_right = 150.0
+offset_bottom = 290.0
+text = "Refresh"
 
-[node name="OwnedAgentsList" type="ItemList" parent="UILayer/RecruitmentView/Panel"]
+[node name="CurrentLabel" type="Label" parent="UILayer/RightContent/RecruitmentContent"]
 layout_mode = 0
-offset_left = 650.0
-offset_top = 180.0
-offset_right = 900.0
-offset_bottom = 450.0
+offset_left = 10.0
+offset_top = 310.0
+offset_right = 200.0
+offset_bottom = 330.0
+theme_override_font_sizes/font_size = 14
+text = "Current Agents"
+
+[node name="CurrentAgentsGrid" type="GridContainer" parent="UILayer/RightContent/RecruitmentContent"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 335.0
+offset_right = 550.0
+offset_bottom = 480.0
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="HardwareContent" type="Control" parent="UILayer/RightContent"]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="HardwareTree" parent="UILayer/RightContent/HardwareContent" instance=ExtResource("3_hardware")]
+layout_mode = 1

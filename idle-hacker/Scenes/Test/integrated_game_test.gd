@@ -2,9 +2,10 @@ extends Node2D
 
 # Views - These will be set in the editor
 @export var taskbar: OSTaskbar
-@export var terminal_view: Control  # Combined terminal + combat
-@export var hardware_view: Control
-@export var recruitment_view: Control
+@export var terminal_window: Control  # The persistent terminal on the left
+@export var terminal_content: Control  # Right side content for Terminal mode
+@export var hardware_content: Control  # Right side content for Hardware mode
+@export var recruitment_content: Control  # Right side content for Recruitment mode
 
 # Systems
 var recruitment_system: AgentRecruitmentSystem
@@ -19,12 +20,14 @@ func _ready():
 	# Get node references if not set in editor
 	if not taskbar:
 		taskbar = $UILayer/OSTaskbar
-	if not terminal_view:
-		terminal_view = $UILayer/TerminalView
-	if not hardware_view:
-		hardware_view = $UILayer/HardwareView
-	if not recruitment_view:
-		recruitment_view = $UILayer/RecruitmentView
+	if not terminal_window:
+		terminal_window = $UILayer/TerminalWindow
+	if not terminal_content:
+		terminal_content = $UILayer/RightContent/TerminalContent
+	if not hardware_content:
+		hardware_content = $UILayer/RightContent/HardwareContent
+	if not recruitment_content:
+		recruitment_content = $UILayer/RightContent/RecruitmentContent
 	
 	# Create systems
 	setup_systems()
@@ -40,8 +43,8 @@ func _ready():
 	create_starter_agents()
 	spawn_server()
 	
-	# Setup terminal view panels
-	setup_terminal_panels()
+	# Setup terminal content panels
+	setup_terminal_content_panels()
 
 func setup_systems():
 	# Create recruitment system as autoload
@@ -68,10 +71,10 @@ func setup_systems():
 	EventBus.command_input.connect(_on_command_input)
 
 func setup_ui_connections():
-	# Register views with taskbar
-	taskbar.register_view_container(OSTaskbar.AppMode.TERMINAL, terminal_view)
-	taskbar.register_view_container(OSTaskbar.AppMode.HARDWARE, hardware_view)
-	taskbar.register_view_container(OSTaskbar.AppMode.RECRUITMENT, recruitment_view)
+	# Register content containers with taskbar
+	taskbar.register_view_container(OSTaskbar.AppMode.TERMINAL, terminal_content)
+	taskbar.register_view_container(OSTaskbar.AppMode.HARDWARE, hardware_content)
+	taskbar.register_view_container(OSTaskbar.AppMode.RECRUITMENT, recruitment_content)
 	
 	# Connect taskbar app switching
 	taskbar.app_switched.connect(_on_app_switched)
@@ -83,28 +86,29 @@ func setup_ui_connections():
 	taskbar.add_alert_box()
 	
 	# Connect recruitment refresh
-	var refresh_btn = recruitment_view.get_node("Panel/RefreshButton")
-	refresh_btn.pressed.connect(_on_recruitment_refresh)
+	var refresh_btn = recruitment_content.get_node_or_null("RefreshButton")
+	if refresh_btn:
+		refresh_btn.pressed.connect(_on_recruitment_refresh)
 	
 	# Setup recruitment UI
 	setup_recruitment_display()
 
-func setup_terminal_panels():
-	# Create/update the terminal view layout panels
-	var enemy_info = terminal_view.get_node_or_null("EnemyInfo")
+func setup_terminal_content_panels():
+	# Create/update the terminal content layout panels
+	var enemy_info = terminal_content.get_node_or_null("EnemyInfo")
 	if not enemy_info:
 		enemy_info = create_info_panel("EnemyInfo", "Enemy Info")
-		terminal_view.add_child(enemy_info)
+		terminal_content.add_child(enemy_info)
 	
-	var combat_preview = terminal_view.get_node_or_null("CombatPreview")
+	var combat_preview = terminal_content.get_node_or_null("CombatPreview")
 	if not combat_preview:
 		combat_preview = create_combat_preview_panel()
-		terminal_view.add_child(combat_preview)
+		terminal_content.add_child(combat_preview)
 	
-	var agent_info = terminal_view.get_node_or_null("AgentInfo")
+	var agent_info = terminal_content.get_node_or_null("AgentInfo")
 	if not agent_info:
 		agent_info = create_info_panel("AgentInfo", "Agent Info")
-		terminal_view.add_child(agent_info)
+		terminal_content.add_child(agent_info)
 	
 	# Update panels with initial data
 	update_terminal_panels()
@@ -206,7 +210,7 @@ func create_entity_card(entity_name: String, entity_type: String) -> Panel:
 
 func update_terminal_panels():
 	# Update enemy info cards
-	var enemy_container = terminal_view.get_node("EnemyInfo/CardContainer")
+	var enemy_container = terminal_content.get_node("EnemyInfo/CardContainer")
 	for child in enemy_container.get_children():
 		child.queue_free()
 	
@@ -219,7 +223,7 @@ func update_terminal_panels():
 	enemy_container.add_child(create_entity_card("Node", "Defense"))
 	
 	# Update agent info cards
-	var agent_container = terminal_view.get_node("AgentInfo/CardContainer")
+	var agent_container = terminal_content.get_node("AgentInfo/CardContainer")
 	for child in agent_container.get_children():
 		child.queue_free()
 	
@@ -237,10 +241,13 @@ func setup_recruitment_display():
 	recruitment_system.agent_recruited.connect(_on_agent_recruited)
 
 func update_recruitment_display():
-	var recruits_container = recruitment_view.get_node("Panel/ScrollContainer/RecruitsContainer")
-	var owned_list = recruitment_view.get_node("Panel/OwnedAgentsList")
-	var money_label = recruitment_view.get_node("Panel/MoneyLabel")
-	var ram_label = recruitment_view.get_node("Panel/RAMLabel")
+	var recruits_container = recruitment_content.get_node_or_null("RecruitsGrid")
+	var owned_container = recruitment_content.get_node_or_null("CurrentAgentsGrid")
+	var money_label = recruitment_content.get_node_or_null("MoneyLabel")
+	var ram_label = recruitment_content.get_node_or_null("RAMLabel")
+	
+	if not recruits_container:
+		return
 	
 	# Clear existing cards
 	for child in recruits_container.get_children():
@@ -253,33 +260,37 @@ func update_recruitment_display():
 		var card = create_recruit_card(agent_data, i)
 		recruits_container.add_child(card)
 	
-	# Update owned agents list
-	owned_list.clear()
-	var owned = recruitment_system.get_owned_agents()
-	for agent in owned:
-		var text = "%s [%s] - RAM: %d" % [agent.name, agent.rarity, agent.stats.ram_cost]
-		owned_list.add_item(text)
-		var idx = owned_list.get_item_count() - 1
-		owned_list.set_item_custom_fg_color(idx, agent.color)
+	# Update owned agents display
+	if owned_container:
+		for child in owned_container.get_children():
+			child.queue_free()
+		
+		var owned = recruitment_system.get_owned_agents()
+		for agent in owned:
+			var card = create_owned_agent_card(agent)
+			owned_container.add_child(card)
 	
 	# Update resource labels
-	money_label.text = "Credits: $1000"  # TODO: Connect to currency
-	var used_ram = recruitment_system.get_total_ram_usage()
-	var max_ram = hardware_system.current_stats.ram_capacity
-	ram_label.text = "RAM: %d / %d" % [used_ram, max_ram]
+	if money_label:
+		money_label.text = "Credits: $1000"  # TODO: Connect to currency
 	
-	# Color code RAM
-	var usage_percent = float(used_ram) / float(max_ram)
-	if usage_percent > 0.9:
-		ram_label.add_theme_color_override("font_color", Color.RED)
-	elif usage_percent > 0.7:
-		ram_label.add_theme_color_override("font_color", Color.YELLOW)
-	else:
-		ram_label.add_theme_color_override("font_color", Color.GREEN)
+	if ram_label:
+		var used_ram = recruitment_system.get_total_ram_usage()
+		var max_ram = hardware_system.current_stats.ram_capacity
+		ram_label.text = "RAM: %d / %d" % [used_ram, max_ram]
+		
+		# Color code RAM
+		var usage_percent = float(used_ram) / float(max_ram)
+		if usage_percent > 0.9:
+			ram_label.add_theme_color_override("font_color", Color.RED)
+		elif usage_percent > 0.7:
+			ram_label.add_theme_color_override("font_color", Color.YELLOW)
+		else:
+			ram_label.add_theme_color_override("font_color", Color.GREEN)
 
 func create_recruit_card(agent_data: Dictionary, index: int) -> Panel:
 	var card = Panel.new()
-	card.custom_minimum_size = Vector2(180, 220)
+	card.custom_minimum_size = Vector2(200, 250)
 	
 	# Style
 	var style = StyleBoxFlat.new()
@@ -292,7 +303,7 @@ func create_recruit_card(agent_data: Dictionary, index: int) -> Panel:
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 3)
 	vbox.position = Vector2(10, 10)
-	vbox.size = Vector2(160, 200)
+	vbox.size = Vector2(180, 230)
 	card.add_child(vbox)
 	
 	# Agent info
@@ -335,6 +346,45 @@ func create_recruit_card(agent_data: Dictionary, index: int) -> Panel:
 	
 	return card
 
+func create_owned_agent_card(agent_data: Dictionary) -> Panel:
+	var card = Panel.new()
+	card.custom_minimum_size = Vector2(180, 200)
+	
+	# Style
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.1, 0.1)
+	style.border_color = agent_data.color
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	card.add_theme_stylebox_override("panel", style)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	vbox.position = Vector2(8, 8)
+	vbox.size = Vector2(164, 184)
+	card.add_child(vbox)
+	
+	# Agent info
+	var name_label = Label.new()
+	name_label.text = agent_data.name
+	name_label.add_theme_color_override("font_color", agent_data.color)
+	name_label.add_theme_font_size_override("font_size", 11)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(name_label)
+	
+	var info_label = Label.new()
+	info_label.text = "%s - RAM: %d" % [agent_data.type, agent_data.stats.ram_cost]
+	info_label.add_theme_font_size_override("font_size", 9)
+	vbox.add_child(info_label)
+	
+	# Deploy button
+	var deploy_btn = Button.new()
+	deploy_btn.text = "DEPLOY"
+	deploy_btn.pressed.connect(_on_deploy_pressed.bind(agent_data))
+	vbox.add_child(deploy_btn)
+	
+	return card
+
 func create_starter_agents():
 	var starters = recruitment_system.generate_starter_agents()
 	var positions = [Vector2(-50, -50), Vector2(-50, 0), Vector2(-50, 50)]
@@ -344,7 +394,7 @@ func create_starter_agents():
 		deploy_agent_to_combat(agent_data, positions[i])
 
 func deploy_agent_to_combat(agent_data: Dictionary, _position: Vector2):
-	var combat_area = terminal_view.get_node("CombatPreview/CombatArea")
+	var combat_area = terminal_content.get_node("CombatPreview/CombatArea")
 	var agents_container = combat_area.get_node("AgentsContainer")
 	
 	# Create agent dynamically
@@ -391,7 +441,7 @@ func deploy_agent_to_combat(agent_data: Dictionary, _position: Vector2):
 	update_terminal_panels()
 
 func spawn_server():
-	var combat_area = terminal_view.get_node("CombatPreview/CombatArea")
+	var combat_area = terminal_content.get_node("CombatPreview/CombatArea")
 	var server_container = combat_area.get_node("ServerContainer")
 	
 	if current_server and is_instance_valid(current_server):
@@ -465,8 +515,8 @@ func start_combat():
 func _on_app_switched(app_mode: OSTaskbar.AppMode):
 	match app_mode:
 		OSTaskbar.AppMode.HARDWARE:
-			if hardware_view.has_method("update_display"):
-				hardware_view.update_display()
+			if hardware_content.has_method("update_display"):
+				hardware_content.update_display()
 		OSTaskbar.AppMode.RECRUITMENT:
 			update_recruitment_display()
 
@@ -490,6 +540,10 @@ func _on_recruit_pressed(index: int):
 	if recruited:
 		EventBus.emit_log_entry("Agent recruited: %s" % recruited.name)
 		update_recruitment_display()
+
+func _on_deploy_pressed(agent_data: Dictionary):
+	# Deploy owned agent to combat
+	deploy_agent_to_combat(agent_data, Vector2(-50, randf_range(-100, 100)))
 
 func _on_recruitment_refresh():
 	recruitment_system.refresh_recruitment_pool()

@@ -1,6 +1,6 @@
 extends Control
 
-@onready var text_display = $ScrollContainer/RichTextLabel
+@onready var text_display = $ScrollContainer/TextDisplay
 @onready var scroll_container = $ScrollContainer
 
 var max_lines: int = 20
@@ -25,8 +25,8 @@ var current_tween: Tween
 
 func _ready():
 	# Set up terminal styling
-	text_display.bbcode_enabled = true
-	text_display.fit_content = true
+	#text_display.bbcode_enabled = true
+	#text_display.fit_content = true
 	
 	# Connect to EventBus signals
 	EventBus.damage_dealt.connect(_on_damage_dealt)

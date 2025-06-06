@@ -1,14 +1,14 @@
 [gd_scene load_steps=3 format=3 uid="uid://bv7p5pmifa37j"]
 
-[ext_resource type="Script" uid="uid://dyx4ui6kb0fym" path="res://Scenes/UI/command_prompt.gd" id="1_gx6wa"]
+[ext_resource type="Script" uid="uid://7sibvm0ogewe" path="res://Scenes/UI/command_prompt.gd" id="1_gx6wa"]
 [ext_resource type="Theme" uid="uid://buofu5v88dxt1" path="res://Scenes/UI/Themes/terminal_window.tres" id="1_mdkyh"]
 
-[node name="LineEdit" type="LineEdit"]
+[node name="CommandPrompt" type="LineEdit"]
 texture_filter = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -31.0
+offset_top = -48.0
 offset_right = 640.0
 grow_vertical = 0
 theme = ExtResource("1_mdkyh")

@@ -1,0 +1,99 @@
+[gd_scene load_steps=9 format=3 uid="uid://cnsn1gj0ts6lp"]
+
+[ext_resource type="Shader" uid="uid://k31qffre0x3b" path="res://Shaders/ascii_color.gdshader" id="1_xmrvn"]
+[ext_resource type="Texture2D" uid="uid://mk1orxaot1xm" path="res://Shaders/ascii_geo.png" id="2_dj0rq"]
+[ext_resource type="Texture2D" uid="uid://c7c2bbkgvm5k4" path="res://Shaders/palette_texture.tres" id="3_yinx0"]
+[ext_resource type="Texture2D" uid="uid://dleh21ld1ac5b" path="res://Assets/Placeholders/dodeca.png" id="4_xmrvn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2ag2q"]
+shader = ExtResource("1_xmrvn")
+shader_parameter/ascii_tex = ExtResource("2_dj0rq")
+shader_parameter/palette_tex = ExtResource("3_yinx0")
+shader_parameter/ascii_size = Vector2(8, 16)
+shader_parameter/available_columns = 10
+shader_parameter/max_columns = 16
+shader_parameter/color_intensity = 3.0
+shader_parameter/randomness = 0.8
+shader_parameter/use_original_brightness = true
+shader_parameter/noise_scale = 3.0
+shader_parameter/noise_octaves = 2
+shader_parameter/color_blend_smoothness = 0.5
+shader_parameter/animate_colors = true
+shader_parameter/animation_speed = 1.0
+shader_parameter/animation_direction = Vector2(1, -1)
+shader_parameter/time_scale = 0.5
+
+[sub_resource type="Animation" id="Animation_xmrvn"]
+resource_name = "ascii"
+length = 8.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer/Ascii Shader/Sprite2D2:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, -2),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+
+[sub_resource type="Animation" id="Animation_dj0rq"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer/Ascii Shader/Sprite2D2:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_yinx0"]
+_data = {
+&"RESET": SubResource("Animation_dj0rq"),
+&"ascii": SubResource("Animation_xmrvn")
+}
+
+[node name="AsciiTest" type="Node"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Ascii Shader" type="ColorRect" parent="CanvasLayer"]
+material = SubResource("ShaderMaterial_2ag2q")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0)
+
+[node name="Sprite2D2" type="Sprite2D" parent="CanvasLayer/Ascii Shader"]
+show_behind_parent = true
+position = Vector2(488, 264)
+scale = Vector2(0.64, 0.64)
+texture = ExtResource("4_xmrvn")
+
+[node name="Node2D" type="Node2D" parent="CanvasLayer/Ascii Shader"]
+position = Vector2(488, 264)
+scale = Vector2(2.60052, 3.5)
+
+[node name="AsciiAnimation" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_yinx0")
+}
+autoplay = "ascii"

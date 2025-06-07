@@ -36,6 +36,11 @@ window/size/window_height_override=1080
 window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 
+[editor]
+
+movie_writer/mjpeg_quality=0.8
+movie_writer/movie_file="C:/Users/Timro/OneDrive/Documents/GodotProjects/Idle-Hacker/Recordings/Idle_hacker.avi"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/script-ide/plugin.cfg")

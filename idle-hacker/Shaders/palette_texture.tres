@@ -1,6 +1,6 @@
 [gd_resource type="ImageTexture" load_steps=2 format=3 uid="uid://c7c2bbkgvm5k4"]
 
-[sub_resource type="Image" id="Image_861cf"]
+[sub_resource type="Image" id="Image_cfjdd"]
 data = {
 "data": PackedByteArray(0, 0, 0, 51, 51, 51, 127, 127, 127, 204, 204, 204, 255, 0, 0, 204, 0, 0, 0, 0, 255, 0, 0, 204, 0, 204, 255, 0, 153, 204, 0, 255, 255, 255, 255, 255),
 "format": "RGB8",
@@ -10,4 +10,4 @@ data = {
 }
 
 [resource]
-image = SubResource("Image_861cf")
+image = SubResource("Image_cfjdd")

@@ -16,9 +16,15 @@ shader_parameter/ascii_size = Vector2(8, 16)
 shader_parameter/available_columns = 10
 shader_parameter/max_columns = 16
 shader_parameter/color_intensity = 3.0
-shader_parameter/randomness = 1.0
-shader_parameter/use_original_brightness = true
-shader_parameter/black_threshold = 0.05
+shader_parameter/randomness = 0.722
+shader_parameter/use_original_brightness = false
+shader_parameter/noise_scale = 8.0
+shader_parameter/noise_octaves = 1
+shader_parameter/color_blend_smoothness = 1.0
+shader_parameter/animate_colors = true
+shader_parameter/animation_speed = 2.0
+shader_parameter/animation_direction = Vector2(1, 0.5)
+shader_parameter/time_scale = 0.5
 
 [sub_resource type="Animation" id="Animation_w0lsm"]
 length = 0.001

@@ -50,7 +50,7 @@ text = "Skill Tree"
 vertical_alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/TreeContainer"]
-visible = false
+clip_contents = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,20 +58,21 @@ anchor_bottom = 1.0
 offset_top = 50.0
 grow_horizontal = 2
 grow_vertical = 2
+vertical_scroll_mode = 2
 
 [node name="DiamondGridContainer" type="Control" parent="HSplitContainer/TreeContainer"]
-custom_minimum_size = Vector2(650, 400)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = 44.0
+unique_name_in_owner = true
+custom_minimum_size = Vector2(650, 600)
+layout_mode = 2
+anchors_preset = 0
+offset_top = 50.0
+offset_right = 650.0
+offset_bottom = 650.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
 script = ExtResource("2_tq623")
-node_size = 50
+node_size = 80
+grid_spacing = 80
 metadata/_custom_type_script = "uid://gf45h5vxm2g7"
 
 [node name="InfoPanel" type="VBoxContainer" parent="HSplitContainer"]

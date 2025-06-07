@@ -1,18 +1,24 @@
-[gd_scene load_steps=11 format=3 uid="uid://gmmv84dx1otf"]
+[gd_scene load_steps=12 format=3 uid="uid://gmmv84dx1otf"]
 
 [ext_resource type="PackedScene" uid="uid://dlnpl14u8qrre" path="res://Scenes/UI/terminal_window.tscn" id="1_s0gyx"]
 [ext_resource type="Theme" uid="uid://buofu5v88dxt1" path="res://Scenes/UI/Themes/terminal_window.tres" id="2_w0lsm"]
 [ext_resource type="PackedScene" uid="uid://bv7p5pmifa37j" path="res://Scenes/UI/command_prompt.tscn" id="2_yjsus"]
 [ext_resource type="Texture2D" uid="uid://clbfkjds65btq" path="res://icon.svg" id="3_nk5xi"]
-[ext_resource type="Shader" uid="uid://0h40a6mt5n5a" path="res://Shaders/ascii.gdshader" id="3_u872a"]
-[ext_resource type="Texture2D" uid="uid://bm3b2sx2x5bvr" path="res://Shaders/ascii.png" id="5_7i1ub"]
+[ext_resource type="Shader" uid="uid://k31qffre0x3b" path="res://Shaders/ascii_color.gdshader" id="4_tpkgp"]
+[ext_resource type="Texture2D" uid="uid://mk1orxaot1xm" path="res://Shaders/ascii_geo.png" id="5_tpkgp"]
+[ext_resource type="Texture2D" uid="uid://c7c2bbkgvm5k4" path="res://Shaders/palette_texture.tres" id="6_irfg1"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_nk5xi"]
-shader = ExtResource("3_u872a")
-shader_parameter/ascii_tex = ExtResource("5_7i1ub")
+shader = ExtResource("4_tpkgp")
+shader_parameter/ascii_tex = ExtResource("5_tpkgp")
+shader_parameter/palette_tex = ExtResource("6_irfg1")
 shader_parameter/ascii_size = Vector2(8, 16)
 shader_parameter/available_columns = 10
 shader_parameter/max_columns = 16
+shader_parameter/color_intensity = 3.0
+shader_parameter/randomness = 1.0
+shader_parameter/use_original_brightness = true
+shader_parameter/black_threshold = 0.05
 
 [sub_resource type="Animation" id="Animation_w0lsm"]
 length = 0.001

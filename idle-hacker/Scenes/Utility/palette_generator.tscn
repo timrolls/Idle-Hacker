@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dw5v8nkot0mjt"]
+
+[ext_resource type="Script" uid="uid://w03xlfawc7uh" path="res://Scenes/Utility/PaletteGenerator.gd" id="1_xkbux"]
+
+[node name="PaletteGenerator" type="Node"]
+script = ExtResource("1_xkbux")

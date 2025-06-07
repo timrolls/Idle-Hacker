@@ -1,7 +1,7 @@
 # SkillTree.gd - Main controller script
 extends Control
 
-@onready var diamond_grid: DiamondGridContainer = $HSplitContainer/TreeContainer/DiamondGridContainer
+@onready var diamond_grid: DiamondGridContainer = %DiamondGridContainer
 @onready var node_name_label: Label = $HSplitContainer/InfoPanel/NodeInfoPanel/InfoContainer/NodeName
 @onready var node_description: RichTextLabel = $HSplitContainer/InfoPanel/NodeInfoPanel/InfoContainer/NodeDescription
 @onready var purchase_button: Button = $HSplitContainer/InfoPanel/NodeInfoPanel/InfoContainer/PurchaseButton
@@ -56,13 +56,14 @@ func create_default_skill_tree():
 	skill_tree_data.grid_width = grid_width
 	skill_tree_data.grid_height = grid_height
 	
-	# Define hardware component templates
+	# Define hardware component templates with icon paths
 	var hardware_templates = {
 		"cpu": {
 			"name_prefix": "CPU",
 			"description": "Improves agent processing speed and attack rates",
 			"bonuses": {"cpu_speed": randf_range(0.1, 0.3)},
 			"cost": 1,
+			"icon_path": "res://icons/cpu.svg",  # You'll need to create these
 			"names": ["Intel i3", "Intel i5", "Intel i7", "Intel i9", "AMD Ryzen 3", "AMD Ryzen 5", "AMD Ryzen 7", "AMD Ryzen 9"]
 		},
 		"ram": {
@@ -70,6 +71,7 @@ func create_default_skill_tree():
 			"description": "Increases capacity for deploying more agents",
 			"bonuses": {"ram_capacity": randf_range(2.0, 6.0)},
 			"cost": 1,
+			"icon_path": "res://icons/ram.svg",
 			"names": ["8GB DDR4", "16GB DDR4", "32GB DDR4", "64GB DDR5", "128GB DDR5", "ECC Memory", "Server RAM"]
 		},
 		"network": {
@@ -77,6 +79,7 @@ func create_default_skill_tree():
 			"description": "Increases agent movement and deployment speed", 
 			"bonuses": {"network_bandwidth": randf_range(0.15, 0.4)},
 			"cost": 1,
+			"icon_path": "res://icons/network.svg",
 			"names": ["Ethernet", "Gigabit", "10G Fiber", "WiFi 6", "5G Modem", "Satellite Link", "Quantum Network"]
 		},
 		"cooling": {
@@ -84,6 +87,7 @@ func create_default_skill_tree():
 			"description": "Improves system stability and agent defense",
 			"bonuses": {"cooling_efficiency": randf_range(0.1, 0.25)},
 			"cost": 2,
+			"icon_path": "res://icons/cooling.svg",
 			"names": ["Stock Cooler", "Tower Cooler", "AIO Liquid", "Custom Loop", "LN2 Cooling", "Immersion Cooling"]
 		},
 		"gpu": {
@@ -91,6 +95,7 @@ func create_default_skill_tree():
 			"description": "Accelerates agent damage and parallel processing",
 			"bonuses": {"gpu_power": randf_range(0.2, 0.5)},
 			"cost": 2,
+			"icon_path": "res://icons/gpu.svg",
 			"names": ["GTX 1660", "RTX 3070", "RTX 4080", "RTX 4090", "AMD RX 6800", "AMD RX 7900", "Tesla V100", "H100"]
 		},
 		"storage": {
@@ -98,6 +103,7 @@ func create_default_skill_tree():
 			"description": "Reduces ability cooldowns and improves data access",
 			"bonuses": {"storage_speed": randf_range(0.1, 0.3)},
 			"cost": 2,
+			"icon_path": "res://icons/storage.svg",
 			"names": ["SATA SSD", "NVMe SSD", "PCIe 4.0", "PCIe 5.0", "Optane", "RAID Array", "Enterprise NVMe"]
 		}
 	}
@@ -108,7 +114,8 @@ func create_default_skill_tree():
 		"Your starting development machine with basic specs",
 		center_x, center_y, 
 		{"cpu_speed": 0.1, "ram_capacity": 4.0, "network_bandwidth": 0.1}, 
-		0, true, true
+		0, true, true,
+		"res://icons/computer.svg"  # Special icon for starting node
 	)
 	skill_tree_data.skill_nodes.append(starting_node)
 	
@@ -136,11 +143,12 @@ func create_default_skill_tree():
 				pos.x, pos.y,
 				template.bonuses,
 				template.cost + (ring - 1),  # Higher cost for outer rings (better hardware)
-				false, false
+				false, false,
+				template.icon_path
 			)
 			skill_tree_data.skill_nodes.append(node)
 
-func create_skill_node(name: String, desc: String, x: int, y: int, bonuses: Dictionary, cost: int, starting: bool, allocated: bool) -> SkillNode:
+func create_skill_node(name: String, desc: String, x: int, y: int, bonuses: Dictionary, cost: int, starting: bool, allocated: bool, icon_path: String = "") -> SkillNode:
 	var node = SkillNode.new()
 	node.skill_name = name
 	node.description = desc
@@ -150,7 +158,45 @@ func create_skill_node(name: String, desc: String, x: int, y: int, bonuses: Dict
 	node.cost = cost
 	node.is_starting_node = starting
 	node.is_allocated = allocated
+	
+	# Load icon if path is provided, or create fallback
+	if icon_path != "":
+		var icon = load(icon_path) as Texture2D
+		if icon:
+			node.icon = icon
+		else:
+			# Create fallback icon based on hardware type
+			node.icon = create_fallback_icon(icon_path)
+	
 	return node
+
+func create_fallback_icon(icon_path: String) -> ImageTexture:
+	# Create a simple colored square as fallback based on hardware type
+	var img = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	var color = Color.WHITE
+	
+	# Choose color based on hardware type (inferred from path)
+	if "cpu" in icon_path:
+		color = Color.CYAN
+	elif "ram" in icon_path:
+		color = Color.GREEN
+	elif "network" in icon_path:
+		color = Color.YELLOW
+	elif "cooling" in icon_path:
+		color = Color.BLUE
+	elif "gpu" in icon_path:
+		color = Color.RED
+	elif "storage" in icon_path:
+		color = Color.PURPLE
+	elif "computer" in icon_path:
+		color = Color.WHITE
+	
+	img.fill(color)
+	
+	# Create texture from image
+	var texture = ImageTexture.new()
+	texture.set_image(img)
+	return texture
 
 func get_ring_positions(center_x: int, center_y: int, ring: int) -> Array[Vector2i]:
 	var positions: Array[Vector2i] = []

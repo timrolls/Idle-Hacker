@@ -25,7 +25,7 @@ var is_hovered: bool = false
 # Purchase progress
 var is_holding: bool = false
 var hold_progress: float = 0.0
-var hold_duration: float = 1.0  # 1 seconds to purchase
+var hold_duration: float = 1.0  # 2 seconds to purchase
 var hold_timer: float = 0.0
 
 signal pressed
@@ -70,9 +70,24 @@ func _draw():
 	
 	# Draw icon if available
 	if skill_node and skill_node.icon:
-		var icon_size = Vector2(diamond_size, diamond_size)
-		var icon_pos = center - icon_size / 2
-		draw_texture_rect(skill_node.icon, Rect2(icon_pos, icon_size), false)
+		var icon_size = diamond_size * 1.2  # Make icon slightly larger than diamond
+		var icon_rect = Rect2(center - Vector2(icon_size, icon_size) / 2, Vector2(icon_size, icon_size))
+		
+		# Apply state-based tinting to the icon
+		var icon_modulate = Color.WHITE
+		match current_state:
+			State.LOCKED:
+				icon_modulate = Color(0.4, 0.4, 0.4, 0.8)  # Dim for locked
+			State.AVAILABLE:
+				icon_modulate = Color(0.9, 0.9, 0.9, 1.0)  # Slightly dim for available
+			State.ALLOCATED:
+				icon_modulate = Color.WHITE  # Full brightness for owned
+		
+		# Additional brightness for hover
+		if is_hovered:
+			icon_modulate = icon_modulate * 1.1
+		
+		draw_texture_rect(skill_node.icon, icon_rect, false, icon_modulate)
 
 func get_current_color() -> Color:
 	match current_state:
@@ -127,7 +142,7 @@ func complete_purchase():
 	hold_progress = 0.0
 	purchase_completed.emit()
 	queue_redraw()
-
+	
 func draw_progress_ring(center: Vector2, radius: float, progress: float):
 	# Draw a circular progress ring around the diamond
 	var ring_radius = radius + 8  # Slightly outside the diamond
@@ -145,8 +160,8 @@ func draw_progress_ring(center: Vector2, radius: float, progress: float):
 		var start_pos = center + Vector2(cos(angle_start), sin(angle_start)) * ring_radius
 		var end_pos = center + Vector2(cos(angle_end), sin(angle_end)) * ring_radius
 		
-		draw_line(start_pos, end_pos, Color.GREEN, ring_width)
-		
+		draw_line(start_pos, end_pos, Color.WHITE_SMOKE, ring_width)
+
 func _process(delta):
 	if is_holding and current_state == State.AVAILABLE:
 		hold_timer += delta

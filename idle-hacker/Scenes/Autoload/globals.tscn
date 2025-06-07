@@ -4,3 +4,13 @@
 
 [node name="Globals" type="Node"]
 script = ExtResource("1_0ot3p")
+damage_color = Color(0.00392157, 0.898039, 0.996078, 1)
+agent_action_color = Color(0.8, 0.8, 0.8, 1)
+server_response_color = Color(0.980392, 0.101961, 0, 1)
+combat_event_color = Color(0.8, 0.8, 0.8, 1)
+success_color = Color(0.00392157, 0.054902, 0.996078, 1)
+warning_color = Color(0.00392157, 0.898039, 0.996078, 1)
+command_color = Color(0.8, 0.8, 0.8, 1)
+help_color = Color(0.8, 0.8, 0.8, 1)
+error_color = Color(0.980392, 0.101961, 0, 1)
+system_color = Color(0.8, 0.8, 0.8, 1)

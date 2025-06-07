@@ -1,13 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://dlnpl14u8qrre"]
+[gd_scene load_steps=4 format=3 uid="uid://dlnpl14u8qrre"]
 
-[ext_resource type="Script" uid="uid://coc2fylnyikp6" path="res://Scenes/UI/terminal_window.gd" id="1_q2jdn"]
-[ext_resource type="Script" uid="uid://b6mbstaftpedd" path="res://addons/richtext2/rich_text_animation.gd" id="2_d2u20"]
-[ext_resource type="Script" uid="uid://5hv4pjs1xcht" path="res://addons/richtext2/text_effects/anims/rte_fader.gd" id="2_fwoud"]
+[ext_resource type="Script" uid="uid://bxlmlpqvov60v" path="res://Scenes/UI/terminal_window.gd" id="1_q2jdn"]
 [ext_resource type="Theme" uid="uid://buofu5v88dxt1" path="res://Scenes/UI/Themes/terminal_window.tres" id="2_kmxhn"]
 
 [sub_resource type="RichTextEffect" id="RichTextEffect_eje30"]
 resource_name = "fader"
-script = ExtResource("2_fwoud")
 metadata/rt = 10581474106877
 
 [node name="Terminal Window" type="Control"]
@@ -51,71 +48,4 @@ scroll_following = true
 custom_effects = [SubResource("RichTextEffect_eje30")]
 progress_bar_delay = -1
 visible_characters_behavior = 1
-script = ExtResource("2_d2u20")
-progress = 1.0
-visible_character = 0
-_forced_finish_delay = -0.0305556
-default_wait_time = 1.0
-play_on_bbcode = true
-play_speed = 60.0
-fade_out = true
-fade_in_speed = 5.0
-fade_out_speed = 120.0
-ctc_offset = Vector2(1, -0.5)
-ctc_on_finished = false
-ctc_on_wait = false
-shortcut_expression = true
-shortcut_bookmark = true
-signal_quotes = true
-signal_stars = true
-bbcode = ""
-effects = 2
-alignment = 0
-color = Color(1, 1, 1, 1)
-emoji_scale = 1.0
-font = "JetBrainsMono-VariableFont_wght"
-font_auto_setup = true
-font_size = 16
-font_bold_weight = 1.5
-font_italics_slant = 0.25
-font_italics_weight = -0.25
-shadow_enabled = false
-shadow_offset = 0.08
-shadow_alpha = 0.25
-shadow_outline_size = 0.1
-outline_size = 0
-outline_mode = 1
-outline_adjust = 0.8
-outline_hue_adjust = 0.0125
-nicer_quotes_enabled = true
-nicer_quotes_format = "“%s”"
-markdown_enabled = true
-markdown_format_bold = "[b]%s[]"
-markdown_format_italics = "[i]%s[]"
-markdown_format_bold_italics = "[bi]%s[]"
-markdown_format_highlight = "[green;sin]%s[]"
-markdown_format_bold2 = "[b]*%s*[]"
-markdown_format_italics2 = "[i;gray]*%s*[]"
-markdown_format_bold_italics2 = "%s"
-context_enabled = true
-context_path = NodePath("/root/State")
-context_state = {}
-context_rich_objects = true
-context_rich_ints = true
-context_rich_array = true
-autostyle_numbers = true
-autostyle_numbers_tag = "[salmon]%s[]"
-autostyle_numbers_pad_decimals = true
-autostyle_numbers_decimals = 2
-autostyle_emojis = true
-effect_weight = 0.5
-image_path = "res://"
-image_resize_to_font_size = true
-image_scale = 1.0
-meta_auto_https = true
-meta_cursor = 2
-override_bbcodeEnabled = true
-override_clipContents = false
-override_fitContent = true
-metadata/_custom_type_script = "uid://b6mbstaftpedd"
 metadata/rand = Array[int]([1738759557, 2653980742, 1422670064])

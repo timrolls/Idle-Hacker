@@ -38,7 +38,9 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="ShapeContainer"]
+handle_input_locally = false
 size = Vector2i(160, 70)
+render_target_update_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="ShapeContainer/SubViewport"]
 transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 1, 3)

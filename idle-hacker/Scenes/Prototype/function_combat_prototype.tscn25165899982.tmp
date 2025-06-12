@@ -1,0 +1,210 @@
+[gd_scene load_steps=2 format=3 uid="uid://bk8s5lmjqr4pc"]
+
+[ext_resource type="Script" uid="uid://bwmtbdfbq0af1" path="res://Scenes/Prototype/function_combat_prototype.gd" id="1_prototype"]
+
+[node name="FunctionCombatPrototype" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_prototype")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopPanel" type="HBoxContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="AgentFace" type="Panel" parent="VBox/TopPanel"]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
+
+[node name="FaceLabel" type="RichTextLabel" parent="VBox/TopPanel/AgentFace"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -25.0
+offset_right = 50.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "[center][color=white]( •_•）[/color][/center]"
+fit_content = true
+
+[node name="StatsPanel" type="Panel" parent="VBox/TopPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatsVBox" type="VBoxContainer" parent="VBox/TopPanel/StatsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LevelLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "12"
+horizontal_alignment = 1
+
+[node name="BarsGrid" type="GridContainer" parent="VBox/TopPanel/StatsPanel/StatsVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 5
+columns = 3
+
+[node name="IntegrityLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Integrity"
+
+[node name="IntegrityBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+modulate = Color(1, 0, 0, 1)
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+value = 100.0
+
+[node name="IntegrityValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "100"
+horizontal_alignment = 2
+
+[node name="XPLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.647059, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "XP"
+
+[node name="XPBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+modulate = Color(1, 0.647059, 0, 1)
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+value = 75.0
+
+[node name="XPValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "1757"
+horizontal_alignment = 2
+
+[node name="ExecutionLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Execution Speed"
+
+[node name="ExecutionBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+modulate = Color(0, 0, 1, 1)
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="ExecutionValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "5hz"
+horizontal_alignment = 2
+
+[node name="EnergyDisplay" type="Panel" parent="VBox/TopPanel"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="BottomPanel" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LeftPanel" type="Panel" parent="VBox/BottomPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LeftVBox" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="HeaderContainer" type="HBoxContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ScriptLabel" type="Label" parent="VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Scripts"
+
+[node name="Spacer" type="Control" parent="VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RunButton" type="Button" parent="VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer"]
+custom_minimum_size = Vector2(80, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+text = "▶ RUN"
+
+[node name="FunctionListContainer" type="ScrollContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FunctionList" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightPanel" type="Panel" parent="VBox/BottomPanel"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="RightVBox" type="VBoxContainer" parent="VBox/BottomPanel/RightPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="AvailableLabel" type="Label" parent="VBox/BottomPanel/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Available Functions"
+
+[node name="AvailableScroll" type="ScrollContainer" parent="VBox/BottomPanel/RightPanel/RightVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AvailableGrid" type="GridContainer" parent="VBox/BottomPanel/RightPanel/RightVBox/AvailableScroll"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2

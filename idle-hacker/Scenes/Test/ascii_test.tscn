@@ -1,5 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://cnsn1gj0ts6lp"]
+[gd_scene load_steps=14 format=3 uid="uid://cnsn1gj0ts6lp"]
 
+[ext_resource type="Shader" uid="uid://bpw0f8iiptn3b" path="res://Shaders/VHS_CRT.gdshader" id="1_dj0rq"]
 [ext_resource type="Shader" uid="uid://k31qffre0x3b" path="res://Shaders/ascii_color.gdshader" id="1_xmrvn"]
 [ext_resource type="Texture2D" uid="uid://mk1orxaot1xm" path="res://Shaders/ascii_geo.png" id="2_dj0rq"]
 [ext_resource type="Texture2D" uid="uid://c7c2bbkgvm5k4" path="res://Shaders/palette_texture.tres" id="3_yinx0"]
@@ -13,8 +14,8 @@ shader_parameter/ascii_size = Vector2(8, 16)
 shader_parameter/available_columns = 10
 shader_parameter/max_columns = 16
 shader_parameter/color_intensity = 3.0
-shader_parameter/randomness = 0.8
-shader_parameter/use_original_brightness = true
+shader_parameter/randomness = 0.689
+shader_parameter/use_original_brightness = false
 shader_parameter/noise_scale = 3.0
 shader_parameter/noise_octaves = 2
 shader_parameter/color_blend_smoothness = 0.5
@@ -23,29 +24,12 @@ shader_parameter/animation_speed = 1.0
 shader_parameter/animation_direction = Vector2(1, -1)
 shader_parameter/time_scale = 0.5
 
-[sub_resource type="Animation" id="Animation_xmrvn"]
-resource_name = "ascii"
-length = 8.0
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("CanvasLayer/Ascii Shader/Sprite2D2:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 8),
-"transitions": PackedFloat32Array(1, -2),
-"update": 0,
-"values": [0.0, 6.28319]
-}
-
 [sub_resource type="Animation" id="Animation_dj0rq"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("CanvasLayer/Ascii Shader/Sprite2D2:rotation")
+tracks/0/path = NodePath("Sprite2D2:rotation")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -55,10 +39,89 @@ tracks/0/keys = {
 "values": [0.0]
 }
 
+[sub_resource type="Animation" id="Animation_xmrvn"]
+resource_name = "ascii"
+length = 8.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D2:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, -2),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_yinx0"]
 _data = {
 &"RESET": SubResource("Animation_dj0rq"),
 &"ascii": SubResource("Animation_xmrvn")
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yinx0"]
+shader = ExtResource("1_dj0rq")
+shader_parameter/overlay = true
+shader_parameter/scanlines_opacity = 1.0
+shader_parameter/scanlines_width = 0.1
+shader_parameter/grille_opacity = 0.1
+shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/pixelate = true
+shader_parameter/roll = false
+shader_parameter/roll_speed = 3.1
+shader_parameter/roll_size = 0.0
+shader_parameter/roll_variation = 1.896
+shader_parameter/distort_intensity = 0.01
+shader_parameter/noise_opacity = 0.4
+shader_parameter/noise_speed = 1.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.01
+shader_parameter/brightness = 1.4
+shader_parameter/discolor = true
+shader_parameter/warp_amount = 0.5
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.5
+
+[sub_resource type="Animation" id="Animation_yinx0"]
+resource_name = "Frame"
+length = 8.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer2/Sprite2D3:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.28319]
+}
+
+[sub_resource type="Animation" id="Animation_3l1jt"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CanvasLayer2/Sprite2D3:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2ag2q"]
+_data = {
+&"Frame": SubResource("Animation_yinx0"),
+&"RESET": SubResource("Animation_3l1jt")
 }
 
 [node name="AsciiTest" type="Node"]
@@ -71,6 +134,12 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+show_behind_parent = true
+position = Vector2(488, 264)
+scale = Vector2(0.64, 0.64)
+texture = ExtResource("4_xmrvn")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Ascii Shader" type="ColorRect" parent="CanvasLayer"]
@@ -82,13 +151,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 1, 1, 0)
 
-[node name="Sprite2D2" type="Sprite2D" parent="CanvasLayer/Ascii Shader"]
-show_behind_parent = true
-position = Vector2(488, 264)
-scale = Vector2(0.64, 0.64)
-texture = ExtResource("4_xmrvn")
-
-[node name="Node2D" type="Node2D" parent="CanvasLayer/Ascii Shader"]
+[node name="Node2D" type="Node2D" parent="CanvasLayer"]
 position = Vector2(488, 264)
 scale = Vector2(2.60052, 3.5)
 
@@ -97,3 +160,23 @@ libraries = {
 &"": SubResource("AnimationLibrary_yinx0")
 }
 autoplay = "ascii"
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+
+[node name="Sprite2D3" type="Sprite2D" parent="CanvasLayer2"]
+self_modulate = Color(1, 1, 1, 0.0980392)
+show_behind_parent = true
+position = Vector2(488, 264)
+scale = Vector2(0.64, 0.64)
+texture = ExtResource("4_xmrvn")
+
+[node name="VHS CRT shader" type="ColorRect" parent="CanvasLayer2"]
+material = SubResource("ShaderMaterial_yinx0")
+offset_right = 960.0
+offset_bottom = 544.0
+
+[node name="FrameAnimation" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_2ag2q")
+}
+autoplay = "Frame"

@@ -1,4 +1,4 @@
-# FunctionCombatPrototype.gd - Complete script with edit mode
+# FunctionCombatPrototype.gd
 extends Control
 
 # Energy types
@@ -8,77 +8,6 @@ enum EnergyType {
 	BLUE,
 	CYAN
 }
-
-# Function data structure
-class CombatFunction:
-	var name: String
-	var description: String
-	var energy_cost: Array = []  # Required energy to execute
-	var energy_generated: Array = []  # Energy produced on execution
-	var base_damage: int = 0
-	var special_effects: Array = []
-	var icon: String = "⚡"
-	var color: Color = Color.WHITE
-	
-	func _init(n: String, desc: String = ""):
-		name = n
-		description = desc
-
-# Agent class
-class FunctionAgent:
-	var agent_name: String = "Agent"
-	var max_health: int = 100
-	var current_health: int = 100
-	var energy_queue: Array = []  # Max 5 slots
-	var function_script: Array = []  # Array of CombatFunction - Max 5 slots
-	var execution_speed: float = 2.0  # Seconds between attacks
-	var attack_timer: float = 0.0
-	var integrity: float = 1.0  # 0.0 to 1.0
-	var xp: int = 1757
-	var current_function_index: int = 0
-	var max_function_slots: int = 5
-	
-	func _init():
-		# Initialize with 5 empty energy slots
-		for i in range(5):
-			energy_queue.append(EnergyType.EMPTY)
-	
-	func add_energy(type: EnergyType):
-		# Shift all energies left and add new one at the end
-		for i in range(4):
-			energy_queue[i] = energy_queue[i + 1]
-		energy_queue[4] = type
-	
-	func consume_energy(required: Array) -> bool:
-		# Check if we have the required energy
-		var available = energy_queue.duplicate()
-		var needed = required.duplicate()
-		
-		for req_energy in needed:
-			var found = false
-			for i in range(available.size()):
-				if available[i] == req_energy:
-					available[i] = EnergyType.EMPTY
-					found = true
-					break
-			if not found:
-				return false
-		
-		# If we get here, we can afford it - actually consume the energy
-		for req_energy in required:
-			for i in range(energy_queue.size()):
-				if energy_queue[i] == req_energy:
-					energy_queue[i] = EnergyType.EMPTY
-					break
-		
-		return true
-	
-	func get_energy_count(type: EnergyType) -> int:
-		var count = 0
-		for energy in energy_queue:
-			if energy == type:
-				count += 1
-		return count
 
 # UI Nodes
 @onready var agent_face = $VBox/TopPanel/AgentFace
@@ -90,8 +19,6 @@ class FunctionAgent:
 @onready var xp_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/XPBar
 @onready var execution_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/ExecutionBar
 @onready var run_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/RunButton
-@onready var edit_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/EditButton
-@onready var right_panel = $VBox/BottomPanel/RightPanel
 
 # Test agent
 var test_agent: FunctionAgent
@@ -100,24 +27,19 @@ var test_agent: FunctionAgent
 var drag_preview: Control = null
 var dragging_function: CombatFunction = null
 var dragging_from_slot: int = -1
-var is_dragging: bool = false
+var is_dragging: bool = false  # Add explicit dragging state
 
 # Execution control
 var is_running: bool = false
-var is_editing: bool = false
 var last_function_script_size: int = 0
 var last_current_function_index: int = 0
 
 func _ready():
-	print("FunctionCombatPrototype _ready() called")
-	
-	# Connect the buttons
+	# Connect the run button
 	run_button.pressed.connect(_on_run_button_pressed)
-	edit_button.pressed.connect(_on_edit_button_pressed)
 	
-	print("Button connections made")
-	print("Edit button: ", edit_button)
-	print("Right panel: ", right_panel)
+	# Create level up button for testing
+	create_level_up_button()
 	
 	create_test_agent()
 	setup_available_functions()
@@ -126,7 +48,6 @@ func _ready():
 	update_energy_display()
 	update_function_display()  # Force initial display of empty slots
 	update_stats_display()
-	update_edit_mode_display()  # Set initial edit mode state
 	
 	# Set up tracking variables after initial display
 	last_function_script_size = test_agent.function_script.size()
@@ -138,69 +59,30 @@ func _ready():
 	timer.timeout.connect(_on_combat_timer_timeout)
 	timer.autostart = true
 	add_child(timer)
-	
-	print("_ready() completed")
 
-func _on_edit_button_pressed():
-	print("EDIT BUTTON PRESSED!")
-	is_editing = !is_editing
+func create_level_up_button():
+	# Add level up button to the stats grid for testing
+	var bars_grid = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid
 	
-	print("Edit button pressed! is_editing is now: ", is_editing)
-	print("Right panel node: ", right_panel)
-	print("Right panel current visibility: ", right_panel.visible if right_panel else "NULL")
+	# Add spacer label
+	var spacer_label = Label.new()
+	spacer_label.text = ""
+	bars_grid.add_child(spacer_label)
 	
-	if is_editing:
-		# Enter edit mode
-		edit_button.text = "✓ DONE"
-		edit_button.add_theme_color_override("font_color", Color.GREEN)
-		
-		# Pause execution and reset timer
-		is_running = false
-		test_agent.attack_timer = 0.0
-		test_agent.current_function_index = 0
-		
-		# Update run button to show paused state
-		run_button.text = "▶ RUN"
-		run_button.add_theme_color_override("font_color", Color.GREEN)
-		
-		print("Edit mode enabled - execution paused")
-	else:
-		# Exit edit mode
-		edit_button.text = "✏ EDIT"
-		edit_button.add_theme_color_override("font_color", Color.WHITE)
-		
-		print("Edit mode disabled")
+	# Create level up button
+	var level_up_btn = Button.new()
+	level_up_btn.text = "Level Up"
+	level_up_btn.custom_minimum_size = Vector2(150, 0)
+	level_up_btn.add_theme_color_override("font_color", Color(0.00392157, 0.898039, 0.996078, 1))
+	level_up_btn.pressed.connect(_on_level_up_pressed)
+	bars_grid.add_child(level_up_btn)
 	
-	# Update display
-	update_edit_mode_display()
-	update_function_display()  # Refresh function highlighting
-	last_function_script_size = test_agent.function_script.size()
-	last_current_function_index = test_agent.current_function_index
-
-func update_edit_mode_display():
-	print("Updating edit mode display. is_editing: ", is_editing)
-	
-	if not right_panel:
-		print("ERROR: right_panel is null! Trying to find it manually...")
-		right_panel = get_node_or_null("VBox/BottomPanel/RightPanel")
-		if right_panel:
-			print("Found right_panel manually: ", right_panel)
-		else:
-			print("Still couldn't find right_panel!")
-			return
-	
-	# Show/hide the available functions panel based on edit mode
-	print("Setting right_panel.visible to: ", is_editing)
-	right_panel.visible = is_editing
-	print("Right panel visibility after setting: ", right_panel.visible)
+	# Add another spacer
+	var spacer_label2 = Label.new()
+	spacer_label2.text = ""
+	bars_grid.add_child(spacer_label2)
 
 func _on_run_button_pressed():
-	print("RUN BUTTON PRESSED!")
-	# Can't run while in edit mode
-	if is_editing:
-		print("Cannot run while in edit mode")
-		return
-	
 	is_running = !is_running
 	
 	if is_running:
@@ -227,11 +109,50 @@ func _on_run_button_pressed():
 func create_test_agent():
 	test_agent = FunctionAgent.new()
 	test_agent.agent_name = "Test Agent"
+	test_agent.level = 1
+	
+	# Calculate initial available slots
+	update_available_slots()
 	
 	# Give some starting energy
 	test_agent.add_energy(EnergyType.RED)
 	test_agent.add_energy(EnergyType.BLUE)
 	test_agent.add_energy(EnergyType.CYAN)
+
+func get_required_level_for_slot(slot_index: int) -> int:
+	# Define level requirements for each slot
+	match slot_index:
+		0: return 1  # First slot always available
+		1: return 3  # Second slot unlocks at level 3
+		2: return 6  # Third slot unlocks at level 6
+		3: return 10 # Fourth slot unlocks at level 10
+		4: return 15 # Fifth slot unlocks at level 15
+		_: return 999 # Invalid slot
+
+func update_available_slots():
+	# Calculate available slots based on current level
+	var new_available_slots = 1  # Always have at least 1 slot
+	
+	for i in range(1, test_agent.max_function_slots):
+		if test_agent.level >= get_required_level_for_slot(i):
+			new_available_slots = i + 1
+		else:
+			break
+	
+	if new_available_slots != test_agent.available_function_slots:
+		test_agent.available_function_slots = new_available_slots
+		print("Unlocked slot! Now have ", test_agent.available_function_slots, " available slots")
+		update_function_display()
+
+func level_up():
+	test_agent.level += 1
+	test_agent.xp = 0  # Reset XP for next level
+	print("Level up! Now level ", test_agent.level)
+	update_available_slots()
+	update_stats_display()
+
+func _on_level_up_pressed():
+	level_up()
 
 func setup_available_functions():
 	var functions = create_function_library()
@@ -322,7 +243,7 @@ func create_function_button(combat_function: CombatFunction) -> Button:
 	button.mouse_exited.connect(_on_function_button_unhover.bind(button))
 	button.pressed.connect(_on_function_button_pressed.bind(button))
 	
-	# Add drag detection using button_down only
+	# Add drag detection using button_down/button_up
 	button.button_down.connect(_on_function_button_down.bind(button))
 	
 	return button
@@ -365,11 +286,6 @@ func _on_slot_button_down(button: Button):
 		start_slot_drag(combat_function, slot_index)
 
 func start_slot_drag(combat_function: CombatFunction, from_index: int):
-	# Can only drag when in edit mode
-	if not is_editing:
-		print("Cannot drag functions when not in edit mode")
-		return
-	
 	# Prevent multiple drags
 	if is_dragging:
 		return
@@ -383,13 +299,8 @@ func start_slot_drag(combat_function: CombatFunction, from_index: int):
 	print("Started dragging function: ", combat_function.name, " from slot: ", from_index)
 
 func start_drag(combat_function: CombatFunction, button: Button):
-	# Can only drag when in edit mode
-	if not is_editing:
-		print("Cannot drag functions when not in edit mode")
-		return
-	
 	# Check if script is full first
-	if test_agent.function_script.size() >= test_agent.max_function_slots:
+	if test_agent.function_script.size() >= test_agent.available_function_slots:
 		flash_script_area_full()
 		return
 	
@@ -549,8 +460,8 @@ func get_target_slot_index(drop_position: Vector2) -> int:
 	var relative_y = drop_position.y - function_list_global_pos.y
 	var slot_index = int(relative_y / slot_height)
 	
-	# Clamp to valid range
-	if slot_index >= 0 and slot_index < test_agent.max_function_slots:
+	# Clamp to valid range (only available slots)
+	if slot_index >= 0 and slot_index < test_agent.available_function_slots:
 		return slot_index
 	return -1
 
@@ -560,7 +471,7 @@ func reorder_function(from_index: int, to_index: int):
 	if from_index < 0 or from_index >= test_agent.function_script.size():
 		print("Invalid from_index: ", from_index)
 		return
-	if to_index < 0 or to_index >= test_agent.max_function_slots:
+	if to_index < 0 or to_index >= test_agent.available_function_slots:
 		print("Invalid to_index: ", to_index)
 		return
 	
@@ -592,14 +503,14 @@ func reorder_function(from_index: int, to_index: int):
 func add_function_to_script(combat_function: CombatFunction):
 	print("Attempting to add function: ", combat_function.name)
 	
-	if test_agent.function_script.size() < test_agent.max_function_slots:
+	if test_agent.function_script.size() < test_agent.available_function_slots:
 		test_agent.function_script.append(combat_function)
 		update_function_display()
 		last_function_script_size = test_agent.function_script.size()
 		last_current_function_index = test_agent.current_function_index
 		print("Function added successfully!")
 	else:
-		print("Script is full!")
+		print("Available slots are full!")
 		flash_script_area_full()
 
 # Make sure to call cleanup when the scene is about to be freed
@@ -651,15 +562,45 @@ func update_function_display():
 	for child in function_list.get_children():
 		child.queue_free()
 	
-	# Create slots (empty or filled)
+	# Create slots (empty, filled, or locked)
 	for i in range(test_agent.max_function_slots):
 		var slot_panel = Panel.new()
 		slot_panel.custom_minimum_size.y = 80
 		slot_panel.custom_minimum_size.x = 400
 		
-		# Style the slot with basic colors
+		# Style the slot based on state
 		var slot_style = StyleBoxFlat.new()
-		if i < test_agent.function_script.size():
+		
+		if i >= test_agent.available_function_slots:
+			# Locked slot
+			slot_style.bg_color = Color.DIM_GRAY * 0.1
+			slot_style.border_color = Color.GRAY * 0.5
+			slot_style.set_border_width_all(2)
+			slot_style.border_width_top = 0
+			slot_style.border_width_bottom = 0
+			
+			var locked_container = HBoxContainer.new()
+			locked_container.anchors_preset = Control.PRESET_FULL_RECT
+			
+			var lock_icon = Label.new()
+			lock_icon.text = "🔒"
+			lock_icon.custom_minimum_size.x = 40
+			lock_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lock_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			locked_container.add_child(lock_icon)
+			
+			var unlock_text = Label.new()
+			var required_level = get_required_level_for_slot(i)
+			unlock_text.text = "Unlocks at Level %d" % required_level
+			unlock_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			unlock_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			unlock_text.add_theme_color_override("font_color", Color.GRAY)
+			unlock_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			locked_container.add_child(unlock_text)
+			
+			slot_panel.add_child(locked_container)
+			
+		elif i < test_agent.function_script.size():
 			# Filled slot
 			var current_function = test_agent.function_script[i]
 			# Only highlight current function if running
@@ -670,8 +611,11 @@ func update_function_display():
 			var function_slot = create_function_slot(current_function, i)
 			slot_panel.add_child(function_slot)
 		else:
-			# Empty slot
+			# Empty available slot
 			slot_style.bg_color = Color.DIM_GRAY * 0.2
+			slot_style.border_color = Color.GREEN * 0.3
+			slot_style.set_border_width_all(1)
+			
 			var empty_label = Label.new()
 			empty_label.text = "Drop Function Here [Slot %d]" % (i + 1)
 			empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -683,6 +627,7 @@ func update_function_display():
 		slot_panel.add_theme_stylebox_override("panel", slot_style)
 		function_list.add_child(slot_panel)
 
+	
 func create_function_slot(combat_function: CombatFunction, index: int) -> Control:
 	var slot = Control.new()
 	slot.anchors_preset = Control.PRESET_FULL_RECT
@@ -757,11 +702,6 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 	return slot
 
 func _on_remove_function(index: int):
-	# Can only remove when in edit mode
-	if not is_editing:
-		print("Cannot remove functions when not in edit mode")
-		return
-	
 	test_agent.function_script.remove_at(index)
 	# Force function display update since we changed the script
 	update_function_display()
@@ -769,6 +709,10 @@ func _on_remove_function(index: int):
 	last_current_function_index = test_agent.current_function_index
 
 func update_stats_display():
+	# Update level display
+	var level_label = $VBox/TopPanel/StatsPanel/StatsVBox/LevelLabel
+	level_label.text = str(test_agent.level)
+	
 	integrity_bar.value = test_agent.integrity * 100
 	execution_bar.value = (test_agent.attack_timer / test_agent.execution_speed) * 100
 

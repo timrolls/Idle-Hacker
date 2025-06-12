@@ -1,4 +1,4 @@
-# FunctionCombatPrototype.gd
+# FunctionCombatPrototype.gd - Complete script with edit mode
 extends Control
 
 # Energy types
@@ -30,13 +30,13 @@ class FunctionAgent:
 	var max_health: int = 100
 	var current_health: int = 100
 	var energy_queue: Array = []  # Max 5 slots
-	var function_script: Array = []  # Array of CombatFunction - Max 3 slots
+	var function_script: Array = []  # Array of CombatFunction - Max 5 slots
 	var execution_speed: float = 2.0  # Seconds between attacks
 	var attack_timer: float = 0.0
 	var integrity: float = 1.0  # 0.0 to 1.0
 	var xp: int = 1757
 	var current_function_index: int = 0
-	var max_function_slots: int = 3
+	var max_function_slots: int = 5
 	
 	func _init():
 		# Initialize with 5 empty energy slots
@@ -90,6 +90,8 @@ class FunctionAgent:
 @onready var xp_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/XPBar
 @onready var execution_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/ExecutionBar
 @onready var run_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/RunButton
+@onready var edit_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/EditButton
+@onready var right_panel = $VBox/BottomPanel/RightPanel
 
 # Test agent
 var test_agent: FunctionAgent
@@ -98,16 +100,24 @@ var test_agent: FunctionAgent
 var drag_preview: Control = null
 var dragging_function: CombatFunction = null
 var dragging_from_slot: int = -1
-var is_dragging: bool = false  # Add explicit dragging state
+var is_dragging: bool = false
 
 # Execution control
 var is_running: bool = false
+var is_editing: bool = false
 var last_function_script_size: int = 0
 var last_current_function_index: int = 0
 
 func _ready():
-	# Connect the run button
+	print("FunctionCombatPrototype _ready() called")
+	
+	# Connect the buttons
 	run_button.pressed.connect(_on_run_button_pressed)
+	edit_button.pressed.connect(_on_edit_button_pressed)
+	
+	print("Button connections made")
+	print("Edit button: ", edit_button)
+	print("Right panel: ", right_panel)
 	
 	create_test_agent()
 	setup_available_functions()
@@ -116,6 +126,7 @@ func _ready():
 	update_energy_display()
 	update_function_display()  # Force initial display of empty slots
 	update_stats_display()
+	update_edit_mode_display()  # Set initial edit mode state
 	
 	# Set up tracking variables after initial display
 	last_function_script_size = test_agent.function_script.size()
@@ -127,8 +138,69 @@ func _ready():
 	timer.timeout.connect(_on_combat_timer_timeout)
 	timer.autostart = true
 	add_child(timer)
+	
+	print("_ready() completed")
+
+func _on_edit_button_pressed():
+	print("EDIT BUTTON PRESSED!")
+	is_editing = !is_editing
+	
+	print("Edit button pressed! is_editing is now: ", is_editing)
+	print("Right panel node: ", right_panel)
+	print("Right panel current visibility: ", right_panel.visible if right_panel else "NULL")
+	
+	if is_editing:
+		# Enter edit mode
+		edit_button.text = "✓ DONE"
+		edit_button.add_theme_color_override("font_color", Color.GREEN)
+		
+		# Pause execution and reset timer
+		is_running = false
+		test_agent.attack_timer = 0.0
+		test_agent.current_function_index = 0
+		
+		# Update run button to show paused state
+		run_button.text = "▶ RUN"
+		run_button.add_theme_color_override("font_color", Color.GREEN)
+		
+		print("Edit mode enabled - execution paused")
+	else:
+		# Exit edit mode
+		edit_button.text = "✏ EDIT"
+		edit_button.add_theme_color_override("font_color", Color.WHITE)
+		
+		print("Edit mode disabled")
+	
+	# Update display
+	update_edit_mode_display()
+	update_function_display()  # Refresh function highlighting
+	last_function_script_size = test_agent.function_script.size()
+	last_current_function_index = test_agent.current_function_index
+
+func update_edit_mode_display():
+	print("Updating edit mode display. is_editing: ", is_editing)
+	
+	if not right_panel:
+		print("ERROR: right_panel is null! Trying to find it manually...")
+		right_panel = get_node_or_null("VBox/BottomPanel/RightPanel")
+		if right_panel:
+			print("Found right_panel manually: ", right_panel)
+		else:
+			print("Still couldn't find right_panel!")
+			return
+	
+	# Show/hide the available functions panel based on edit mode
+	print("Setting right_panel.visible to: ", is_editing)
+	right_panel.visible = is_editing
+	print("Right panel visibility after setting: ", right_panel.visible)
 
 func _on_run_button_pressed():
+	print("RUN BUTTON PRESSED!")
+	# Can't run while in edit mode
+	if is_editing:
+		print("Cannot run while in edit mode")
+		return
+	
 	is_running = !is_running
 	
 	if is_running:
@@ -250,9 +322,8 @@ func create_function_button(combat_function: CombatFunction) -> Button:
 	button.mouse_exited.connect(_on_function_button_unhover.bind(button))
 	button.pressed.connect(_on_function_button_pressed.bind(button))
 	
-	# Add drag detection using button_down/button_up
+	# Add drag detection using button_down only
 	button.button_down.connect(_on_function_button_down.bind(button))
-	#button.button_up.connect(_on_function_button_up.bind(button))
 	
 	return button
 
@@ -294,6 +365,11 @@ func _on_slot_button_down(button: Button):
 		start_slot_drag(combat_function, slot_index)
 
 func start_slot_drag(combat_function: CombatFunction, from_index: int):
+	# Can only drag when in edit mode
+	if not is_editing:
+		print("Cannot drag functions when not in edit mode")
+		return
+	
 	# Prevent multiple drags
 	if is_dragging:
 		return
@@ -307,6 +383,11 @@ func start_slot_drag(combat_function: CombatFunction, from_index: int):
 	print("Started dragging function: ", combat_function.name, " from slot: ", from_index)
 
 func start_drag(combat_function: CombatFunction, button: Button):
+	# Can only drag when in edit mode
+	if not is_editing:
+		print("Cannot drag functions when not in edit mode")
+		return
+	
 	# Check if script is full first
 	if test_agent.function_script.size() >= test_agent.max_function_slots:
 		flash_script_area_full()
@@ -676,6 +757,11 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 	return slot
 
 func _on_remove_function(index: int):
+	# Can only remove when in edit mode
+	if not is_editing:
+		print("Cannot remove functions when not in edit mode")
+		return
+	
 	test_agent.function_script.remove_at(index)
 	# Force function display update since we changed the script
 	update_function_display()

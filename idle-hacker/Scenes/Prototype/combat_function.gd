@@ -22,6 +22,10 @@ enum EnergyType {
 func _init(function_name: String = "", desc: String = ""):
 	name = function_name
 	description = desc
+	# Initialize arrays properly
+	energy_cost = []
+	energy_generated = []
+	special_effects = []
 
 # Helper function to get energy color for UI
 static func get_energy_color(type: EnergyType) -> Color:

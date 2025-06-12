@@ -1,14 +1,6 @@
 # FunctionCombatPrototype.gd
 extends Control
 
-# Energy types
-enum EnergyType {
-	EMPTY,
-	RED,
-	BLUE,
-	CYAN
-}
-
 # UI Nodes
 @onready var agent_face = $VBox/TopPanel/AgentFace
 @onready var stats_panel = $VBox/TopPanel/StatsPanel
@@ -27,7 +19,7 @@ var test_agent: FunctionAgent
 var drag_preview: Control = null
 var dragging_function: CombatFunction = null
 var dragging_from_slot: int = -1
-var is_dragging: bool = false  # Add explicit dragging state
+var is_dragging: bool = false
 
 # Execution control
 var is_running: bool = false
@@ -46,7 +38,7 @@ func _ready():
 	
 	# Initial display - show everything including empty function slots
 	update_energy_display()
-	update_function_display()  # Force initial display of empty slots
+	update_function_display()
 	update_stats_display()
 	
 	# Set up tracking variables after initial display
@@ -115,9 +107,9 @@ func create_test_agent():
 	update_available_slots()
 	
 	# Give some starting energy
-	test_agent.add_energy(EnergyType.RED)
-	test_agent.add_energy(EnergyType.BLUE)
-	test_agent.add_energy(EnergyType.CYAN)
+	test_agent.add_energy(CombatFunction.EnergyType.RED)
+	test_agent.add_energy(CombatFunction.EnergyType.BLUE)
+	test_agent.add_energy(CombatFunction.EnergyType.CYAN)
 
 func get_required_level_for_slot(slot_index: int) -> int:
 	# Define level requirements for each slot
@@ -167,28 +159,31 @@ func create_function_library() -> Array:
 	# Basic attack (no requirements)
 	var basic = CombatFunction.new("Basic Strike", "Simple attack with no energy cost")
 	basic.base_damage = 10
-	basic.energy_generated = [EnergyType.RED]
+	basic.energy_generated.append(CombatFunction.EnergyType.RED)
 	basic.icon = "⚔"
 	basic.color = Color.WHITE
 	functions.append(basic)
 	
 	# Energy generators
 	var red_gen = CombatFunction.new("Power Core", "Generate Red energy")
-	red_gen.energy_generated = [EnergyType.RED, EnergyType.RED]
+	red_gen.energy_generated.append(CombatFunction.EnergyType.RED)
+	red_gen.energy_generated.append(CombatFunction.EnergyType.RED)
 	red_gen.base_damage = 5
 	red_gen.icon = "🔴"
 	red_gen.color = Color.RED
 	functions.append(red_gen)
 	
 	var blue_gen = CombatFunction.new("Data Mine", "Generate Blue energy")
-	blue_gen.energy_generated = [EnergyType.BLUE, EnergyType.BLUE]
+	blue_gen.energy_generated.append(CombatFunction.EnergyType.BLUE)
+	blue_gen.energy_generated.append(CombatFunction.EnergyType.BLUE)
 	blue_gen.base_damage = 5
 	blue_gen.icon = "🔵"
 	blue_gen.color = Color.BLUE
 	functions.append(blue_gen)
 	
 	var cyan_gen = CombatFunction.new("Network Tap", "Generate Cyan energy")
-	cyan_gen.energy_generated = [EnergyType.CYAN, EnergyType.CYAN]
+	cyan_gen.energy_generated.append(CombatFunction.EnergyType.CYAN)
+	cyan_gen.energy_generated.append(CombatFunction.EnergyType.CYAN)
 	cyan_gen.base_damage = 5
 	cyan_gen.icon = "🟢"
 	cyan_gen.color = Color.CYAN
@@ -196,32 +191,36 @@ func create_function_library() -> Array:
 	
 	# Energy spenders
 	var red_spender = CombatFunction.new("Overload", "Powerful attack using Red energy")
-	red_spender.energy_cost = [EnergyType.RED, EnergyType.RED]
+	red_spender.energy_cost.append(CombatFunction.EnergyType.RED)
+	red_spender.energy_cost.append(CombatFunction.EnergyType.RED)
 	red_spender.base_damage = 35
 	red_spender.icon = "💥"
 	red_spender.color = Color.RED
 	functions.append(red_spender)
 	
 	var blue_spender = CombatFunction.new("Data Spike", "High damage using Blue energy")
-	blue_spender.energy_cost = [EnergyType.BLUE, EnergyType.BLUE]
+	blue_spender.energy_cost.append(CombatFunction.EnergyType.BLUE)
+	blue_spender.energy_cost.append(CombatFunction.EnergyType.BLUE)
 	blue_spender.base_damage = 30
-	blue_spender.special_effects = ["Ignore Defense"]
+	blue_spender.special_effects.append("Ignore Defense")
 	blue_spender.icon = "📊"
 	blue_spender.color = Color.BLUE
 	functions.append(blue_spender)
 	
 	var cyan_spender = CombatFunction.new("Packet Storm", "Multi-hit using Cyan energy")
-	cyan_spender.energy_cost = [EnergyType.CYAN, EnergyType.CYAN]
+	cyan_spender.energy_cost.append(CombatFunction.EnergyType.CYAN)
+	cyan_spender.energy_cost.append(CombatFunction.EnergyType.CYAN)
 	cyan_spender.base_damage = 20
-	cyan_spender.special_effects = ["Hits 3 times"]
+	cyan_spender.special_effects.append("Hits 3 times")
 	cyan_spender.icon = "🌊"
 	cyan_spender.color = Color.CYAN
 	functions.append(cyan_spender)
 	
 	# Converters
 	var converter = CombatFunction.new("Energy Matrix", "Convert Red to Blue")
-	converter.energy_cost = [EnergyType.RED]
-	converter.energy_generated = [EnergyType.BLUE, EnergyType.BLUE]
+	converter.energy_cost.append(CombatFunction.EnergyType.RED)
+	converter.energy_generated.append(CombatFunction.EnergyType.BLUE)
+	converter.energy_generated.append(CombatFunction.EnergyType.BLUE)
 	converter.base_damage = 8
 	converter.icon = "🔄"
 	converter.color = Color.PURPLE
@@ -381,7 +380,7 @@ func cleanup_drag_preview():
 		if drag_preview.get_parent():
 			drag_preview.get_parent().remove_child(drag_preview)
 		
-		# Queue for deletion
+		# queue for deletion
 		drag_preview.queue_free()
 	
 	drag_preview = null
@@ -627,7 +626,6 @@ func update_function_display():
 		slot_panel.add_theme_stylebox_override("panel", slot_style)
 		function_list.add_child(slot_panel)
 
-	
 func create_function_slot(combat_function: CombatFunction, index: int) -> Control:
 	var slot = Control.new()
 	slot.anchors_preset = Control.PRESET_FULL_RECT
@@ -637,7 +635,7 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 	hbox.add_theme_constant_override("separation", 10)
 	slot.add_child(hbox)
 	
-	# Function icon/name - make this draggable with a button instead of RichTextLabel
+	# Function icon/name - make this draggable with a button
 	var drag_button = Button.new()
 	drag_button.custom_minimum_size.x = 200
 	drag_button.text = "%s %s" % [combat_function.icon, combat_function.name]
@@ -716,15 +714,15 @@ func update_stats_display():
 	integrity_bar.value = test_agent.integrity * 100
 	execution_bar.value = (test_agent.attack_timer / test_agent.execution_speed) * 100
 
-func get_energy_color(type: EnergyType) -> Color:
+func get_energy_color(type: CombatFunction.EnergyType) -> Color:
 	match type:
-		EnergyType.RED:
+		CombatFunction.EnergyType.RED:
 			return Color.RED
-		EnergyType.BLUE:
+		CombatFunction.EnergyType.BLUE:
 			return Color.BLUE
-		EnergyType.CYAN:
+		CombatFunction.EnergyType.CYAN:
 			return Color.CYAN
-		EnergyType.EMPTY:
+		CombatFunction.EnergyType.EMPTY:
 			return Color.DARK_GRAY
 		_:
 			return Color.WHITE

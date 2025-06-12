@@ -125,7 +125,6 @@ text = "5hz"
 horizontal_alignment = 2
 
 [node name="LevelUpButton" type="Button" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
-visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
 theme_override_font_sizes/font_size = 10

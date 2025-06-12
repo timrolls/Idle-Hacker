@@ -18,7 +18,8 @@ extends Resource
 
 func _init():
 	# Initialize with 5 empty energy slots
-	energy_queue.clear()
+	energy_queue = []
+	function_script = []
 	for i in range(5):
 		energy_queue.append(CombatFunction.EnergyType.EMPTY)
 

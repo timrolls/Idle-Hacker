@@ -1,6 +1,54 @@
-[gd_scene load_steps=2 format=3 uid="uid://bk8s5lmjqr4pc"]
+[gd_scene load_steps=13 format=3 uid="uid://bk8s5lmjqr4pc"]
 
 [ext_resource type="Script" uid="uid://bwmtbdfbq0af1" path="res://Scenes/Prototype/function_combat_prototype.gd" id="1_prototype"]
+[ext_resource type="Theme" uid="uid://c0lnmv5pnxk70" path="res://Scenes/UI/Themes/WhitePanels.tres" id="2_in4fx"]
+[ext_resource type="Shader" uid="uid://bpw0f8iiptn3b" path="res://Shaders/VHS_CRT.gdshader" id="3_4btw1"]
+[ext_resource type="Script" uid="uid://i8bg2nawwnn0" path="res://addons/richtext2/text_effects/effects/rte_sin.gd" id="3_wiev2"]
+[ext_resource type="Script" uid="uid://dhbxvg36y8pfd" path="res://addons/richtext2/text_effects/effects/rte_curspull.gd" id="4_4btw1"]
+[ext_resource type="Script" uid="uid://2f4fi75scxes" path="res://addons/richtext2/richer_text_label.gd" id="5_8xxkk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_in4fx"]
+bg_color = Color(0.00392157, 0.054902, 0.996078, 1)
+
+[sub_resource type="RichTextEffect" id="RichTextEffect_6wiv0"]
+resource_name = "sin"
+script = ExtResource("3_wiev2")
+metadata/rt = 36777301746014
+
+[sub_resource type="RichTextEffect" id="RichTextEffect_wt41d"]
+resource_name = "curspull"
+script = ExtResource("4_4btw1")
+metadata/rt = 36777301746014
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8xxkk"]
+shader = ExtResource("3_4btw1")
+shader_parameter/overlay = true
+shader_parameter/scanlines_opacity = 0.333
+shader_parameter/scanlines_width = 0.1
+shader_parameter/grille_opacity = 0.1
+shader_parameter/resolution = Vector2(960, 540)
+shader_parameter/pixelate = true
+shader_parameter/roll = true
+shader_parameter/roll_speed = 3.1
+shader_parameter/roll_size = 0.0
+shader_parameter/roll_variation = 1.896
+shader_parameter/distort_intensity = 0.0
+shader_parameter/noise_opacity = 0.4
+shader_parameter/noise_speed = 1.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.01
+shader_parameter/brightness = 1.4
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 0.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r83el"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_on4ts"]
+bg_color = Color(1, 1, 1, 1)
 
 [node name="FunctionCombatPrototype" type="Control"]
 layout_mode = 3
@@ -26,27 +74,99 @@ layout_mode = 2
 [node name="AgentFace" type="Panel" parent="VBox/TopPanel"]
 custom_minimum_size = Vector2(300, 200)
 layout_mode = 2
+theme = ExtResource("2_in4fx")
+theme_override_styles/panel = SubResource("StyleBoxFlat_in4fx")
 
 [node name="FaceLabel" type="RichTextLabel" parent="VBox/TopPanel/AgentFace"]
+custom_minimum_size = Vector2(0, 45)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -50.0
-offset_top = -25.0
-offset_right = 50.0
-offset_bottom = 25.0
+offset_left = -150.0
+offset_top = -100.0
+offset_right = 146.0
+offset_bottom = 100.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_font_sizes/bold_italics_font_size = 32
+theme_override_font_sizes/italics_font_size = 32
+theme_override_font_sizes/mono_font_size = 32
+theme_override_font_sizes/normal_font_size = 32
+theme_override_font_sizes/bold_font_size = 32
 bbcode_enabled = true
-text = "[center][color=white]( •_•）[/color][/center]"
 fit_content = true
+horizontal_alignment = 1
+vertical_alignment = 1
+custom_effects = [SubResource("RichTextEffect_6wiv0"), SubResource("RichTextEffect_wt41d")]
+script = ExtResource("5_8xxkk")
+bbcode = "[sin][curspull](｡◕‿‿◕｡)"
+effects = 2
+alignment = 1
+color = Color(1, 1, 1, 1)
+emoji_scale = 1.0
+font = "JetBrainsMono-VariableFont_wght"
+font_auto_setup = true
+font_size = 32
+font_bold_weight = 1.5
+font_italics_slant = 0.25
+font_italics_weight = -0.25
+shadow_enabled = false
+shadow_offset = 0.08
+shadow_alpha = 0.25
+shadow_outline_size = 0.1
+outline_size = 0
+outline_mode = 1
+outline_adjust = 0.8
+outline_hue_adjust = 0.0125
+nicer_quotes_enabled = true
+nicer_quotes_format = "“%s”"
+markdown_enabled = true
+markdown_format_bold = "[b]%s[]"
+markdown_format_italics = "[i]%s[]"
+markdown_format_bold_italics = "[bi]%s[]"
+markdown_format_highlight = "[green;sin]%s[]"
+markdown_format_bold2 = "[b]*%s*[]"
+markdown_format_italics2 = "[i;gray]*%s*[]"
+markdown_format_bold_italics2 = "%s"
+context_enabled = true
+context_path = NodePath("/root/State")
+context_state = {}
+context_rich_objects = true
+context_rich_ints = true
+context_rich_array = true
+autostyle_numbers = true
+autostyle_numbers_tag = "[salmon]%s[]"
+autostyle_numbers_pad_decimals = true
+autostyle_numbers_decimals = 2
+autostyle_emojis = true
+effect_weight = 0.0
+image_path = "res://"
+image_resize_to_font_size = true
+image_scale = 1.0
+meta_auto_https = true
+meta_cursor = 2
+override_bbcodeEnabled = true
+override_clipContents = false
+override_fitContent = true
+metadata/_custom_type_script = "uid://2f4fi75scxes"
+metadata/mouse_position = Vector2(281.131, 202.64)
+metadata/frame = 2522324
+metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
+
+[node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]
+visible = false
+material = SubResource("ShaderMaterial_8xxkk")
+layout_mode = 2
+offset_right = 300.0
+offset_bottom = 200.0
 
 [node name="StatsPanel" type="Panel" parent="VBox/TopPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("2_in4fx")
 
 [node name="StatsVBox" type="VBoxContainer" parent="VBox/TopPanel/StatsPanel"]
 layout_mode = 1
@@ -64,13 +184,26 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "1"
-horizontal_alignment = 1
 
 [node name="BarsGrid" type="GridContainer" parent="VBox/TopPanel/StatsPanel/StatsVBox"]
 layout_mode = 2
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 5
 columns = 3
+
+[node name="SpacerLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+
+[node name="LevelUpButton" type="Button" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme = ExtResource("2_in4fx")
+theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_r83el")
+text = "+ Level"
+
+[node name="SpacerLabel2" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
 
 [node name="IntegrityLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 layout_mode = 2
@@ -80,9 +213,10 @@ text = "Integrity"
 
 [node name="IntegrityBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 modulate = Color(1, 0, 0, 1)
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(150, 23)
 layout_mode = 2
 value = 100.0
+show_percentage = false
 
 [node name="IntegrityValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 layout_mode = 2
@@ -98,9 +232,10 @@ text = "XP"
 
 [node name="XPBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 modulate = Color(0.00392157, 0.898039, 0.996078, 1)
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(150, 23)
 layout_mode = 2
 value = 75.0
+show_percentage = false
 
 [node name="XPValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 layout_mode = 2
@@ -116,8 +251,9 @@ text = "Execution Speed"
 
 [node name="ExecutionBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 modulate = Color(0, 0, 1, 1)
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(150, 23)
 layout_mode = 2
+show_percentage = false
 
 [node name="ExecutionValue" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 layout_mode = 2
@@ -125,21 +261,10 @@ theme_override_font_sizes/font_size = 12
 text = "5hz"
 horizontal_alignment = 2
 
-[node name="SpacerLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
-layout_mode = 2
-
-[node name="LevelUpButton" type="Button" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
-custom_minimum_size = Vector2(150, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
-text = "Level Up"
-
-[node name="SpacerLabel2" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
-layout_mode = 2
-
 [node name="EnergyDisplay" type="Panel" parent="VBox/TopPanel"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
+theme = ExtResource("2_in4fx")
 
 [node name="EnergyGrid" type="GridContainer" parent="VBox/TopPanel/EnergyDisplay"]
 layout_mode = 1
@@ -148,35 +273,39 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -75.0
-offset_top = -25.0
-offset_right = 75.0
-offset_bottom = 25.0
+offset_left = -15.0
+offset_top = -75.0
+offset_right = 15.0
+offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
-columns = 5
 
 [node name="EnergySlot1" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot2" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot3" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot4" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot5" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="BottomPanel" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -185,6 +314,7 @@ size_flags_vertical = 3
 [node name="LeftPanel" type="Panel" parent="VBox/BottomPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("2_in4fx")
 
 [node name="LeftVBox" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel"]
 layout_mode = 1
@@ -259,6 +389,7 @@ layout_mode = 2
 visible = false
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+theme = ExtResource("2_in4fx")
 
 [node name="RightVBox" type="VBoxContainer" parent="VBox/BottomPanel/RightPanel"]
 layout_mode = 1

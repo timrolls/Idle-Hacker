@@ -1,0 +1,45 @@
+[gd_resource type="Theme" load_steps=11 format=3 uid="uid://c0lnmv5pnxk70"]
+
+[ext_resource type="FontFile" uid="uid://bxsau2kdacj41" path="res://Assets/Fonts/JetBrainsMono-VariableFont_wght.ttf" id="1_hdpob"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivabo"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yvo6x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_db2c1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qoav6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i0u5w"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_roex6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp1y8"]
+bg_color = Color(0.8, 0.8, 0.8, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wltoh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2nggo"]
+bg_color = Color(1, 1, 1, 1)
+
+[resource]
+Button/fonts/font = ExtResource("1_hdpob")
+Button/styles/disabled = SubResource("StyleBoxFlat_ivabo")
+Button/styles/focus = SubResource("StyleBoxFlat_yvo6x")
+Button/styles/hover = SubResource("StyleBoxFlat_db2c1")
+Button/styles/normal = SubResource("StyleBoxFlat_qoav6")
+Button/styles/pressed = SubResource("StyleBoxFlat_i0u5w")
+Label/colors/font_color = Color(0.133333, 0.133333, 0.133333, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 0)
+Label/constants/line_spacing = 3
+Label/constants/outline_size = 0
+Label/constants/shadow_offset_x = 1
+Label/constants/shadow_offset_y = 1
+Label/constants/shadow_outline_size = 1
+Label/font_sizes/font_size = 16
+Label/fonts/font = ExtResource("1_hdpob")
+Label/styles/normal = SubResource("StyleBoxEmpty_roex6")
+Panel/styles/panel = SubResource("StyleBoxFlat_sp1y8")
+ProgressBar/styles/background = SubResource("StyleBoxFlat_wltoh")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_2nggo")

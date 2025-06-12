@@ -42,7 +42,7 @@ movie_writer/movie_file="C:/Users/Timro/OneDrive/Documents/GodotProjects/Idle-Ha
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/script-ide/plugin.cfg")
+enabled=PackedStringArray("res://addons/richtext2/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
 [physics]
 
@@ -54,3 +54,9 @@ textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 anti_aliasing/quality/screen_space_aa=1
+
+[richer_text_label]
+
+fonts={
+&"JetBrainsMono-VariableFont_wght": "res://Assets/Fonts/JetBrainsMono-VariableFont_wght.ttf"
+}

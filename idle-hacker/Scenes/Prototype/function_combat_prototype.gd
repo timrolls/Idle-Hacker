@@ -30,6 +30,8 @@ var is_dragging: bool = false
 
 # Execution control
 var is_running: bool = false
+var is_editing: bool = false
+var was_running_before_edit: bool = false
 var last_function_script_size: int = 0
 var last_current_function_index: int = 0
 
@@ -44,6 +46,10 @@ func _ready():
 	# Connect buttons
 	run_button.pressed.connect(_on_run_button_pressed)
 	level_up_button.pressed.connect(_on_level_up_pressed)
+	
+	# Connect edit button
+	var edit_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/EditButton
+	edit_button.pressed.connect(_on_edit_button_pressed)
 	
 	create_test_agent()
 	setup_available_functions()
@@ -99,6 +105,48 @@ func _on_run_button_pressed():
 	last_function_script_size = test_agent.function_script.size()
 	last_current_function_index = test_agent.current_function_index
 
+func _on_level_up_pressed():
+	level_up()
+
+func _on_edit_button_pressed():
+	is_editing = !is_editing
+	var right_panel = $VBox/BottomPanel/RightPanel
+	var edit_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/EditButton
+	
+	if is_editing:
+		# Store current running state and pause execution
+		was_running_before_edit = is_running
+		if is_running:
+			is_running = false
+			run_button.text = "▶ RUN"
+			run_button.add_theme_color_override("font_color", Color.GREEN)
+		
+		# Reset attack timer to 0 when entering edit mode
+		test_agent.attack_timer = 0.0
+		
+		# Show right panel and update edit button
+		right_panel.visible = true
+		edit_button.text = "✓ DONE"
+		edit_button.add_theme_color_override("font_color", Color.GREEN)
+		
+		print("Edit mode enabled - execution paused")
+	else:
+		# Hide right panel and update edit button
+		right_panel.visible = false
+		edit_button.text = "✏ EDIT"
+		edit_button.add_theme_color_override("font_color", Color.WHITE)
+		
+		# Resume execution if it was running before edit
+		if was_running_before_edit:
+			is_running = true
+			run_button.text = "⏸ PAUSE"
+			run_button.add_theme_color_override("font_color", Color.ORANGE)
+			print("Edit mode disabled - execution resumed")
+		else:
+			print("Edit mode disabled - execution remains paused")
+	
+	update_function_display()
+
 func create_test_agent():
 	test_agent = FunctionAgent.new()
 	test_agent.agent_name = "Test Agent"
@@ -140,9 +188,6 @@ func level_up():
 	print("Level up! Now level ", test_agent.level)
 	update_available_slots()
 	update_stats_display()
-
-func _on_level_up_pressed():
-	level_up()
 
 func setup_available_functions():
 	var functions = create_function_library()
@@ -334,8 +379,8 @@ func update_energy_display():
 		
 		var style = StyleBoxFlat.new()
 		style.bg_color = energy_color
-		style.border_color = Color.WHITE
-		style.set_border_width_all(2)
+		#style.border_color = Color.WHITE
+		#style.set_border_width_all(2)
 		style.set_corner_radius_all(15)
 		
 		energy_slot_panels[i].add_theme_stylebox_override("panel", style)
@@ -480,13 +525,14 @@ func get_energy_color(type: CombatFunction.EnergyType) -> Color:
 			return Color.WHITE
 
 func _on_combat_timer_timeout():
-	if is_running and not test_agent.function_script.is_empty():
+	if is_running and not test_agent.function_script.is_empty() and not is_editing:
 		test_agent.attack_timer += 0.1
 		
 		if test_agent.attack_timer >= test_agent.execution_speed:
 			execute_next_function()
 			test_agent.attack_timer = 0.0
-	elif not is_running:
+	elif not is_running or is_editing:
+		# Keep timer at 0 when not running or editing
 		test_agent.attack_timer = 0.0
 	
 	update_display()

@@ -162,8 +162,8 @@ func create_test_agent():
 func get_required_level_for_slot(slot_index: int) -> int:
 	match slot_index:
 		0: return 1
-		1: return 3
-		2: return 6
+		1: return 1
+		2: return 5
 		3: return 10
 		4: return 15
 		_: return 999

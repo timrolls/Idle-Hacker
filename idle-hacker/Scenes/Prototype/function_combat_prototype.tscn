@@ -10,12 +10,12 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_in4fx"]
 bg_color = Color(0.00392157, 0.054902, 0.996078, 1)
 
-[sub_resource type="RichTextEffect" id="RichTextEffect_6wiv0"]
+[sub_resource type="RichTextEffect" id="RichTextEffect_4btw1"]
 resource_name = "sin"
 script = ExtResource("3_wiev2")
 metadata/rt = 36777301746014
 
-[sub_resource type="RichTextEffect" id="RichTextEffect_wt41d"]
+[sub_resource type="RichTextEffect" id="RichTextEffect_8xxkk"]
 resource_name = "curspull"
 script = ExtResource("4_4btw1")
 metadata/rt = 36777301746014
@@ -100,9 +100,9 @@ bbcode_enabled = true
 fit_content = true
 horizontal_alignment = 1
 vertical_alignment = 1
-custom_effects = [SubResource("RichTextEffect_6wiv0"), SubResource("RichTextEffect_wt41d")]
+custom_effects = [SubResource("RichTextEffect_4btw1"), SubResource("RichTextEffect_8xxkk")]
 script = ExtResource("5_8xxkk")
-bbcode = "[sin][curspull](｡◕‿‿◕｡)"
+bbcode = "[sin][curspull pull =3](｡◕‿‿◕｡)"
 effects = 2
 alignment = 1
 color = Color(1, 1, 1, 1)
@@ -152,8 +152,8 @@ override_bbcodeEnabled = true
 override_clipContents = false
 override_fitContent = true
 metadata/_custom_type_script = "uid://2f4fi75scxes"
-metadata/mouse_position = Vector2(281.131, 202.64)
-metadata/frame = 2522324
+metadata/mouse_position = Vector2(1014.38, 222.396)
+metadata/frame = 2550380
 metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
 
 [node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]

@@ -1,15 +1,22 @@
 # FunctionCombatPrototype.gd
 extends Control
 
-# UI Nodes
+# UI Nodes - now all references to existing scene nodes
 @onready var agent_face = $VBox/TopPanel/AgentFace
 @onready var stats_panel = $VBox/TopPanel/StatsPanel
 @onready var energy_display = $VBox/TopPanel/EnergyDisplay
-@onready var function_list = $VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionList
+@onready var energy_grid = $VBox/TopPanel/EnergyDisplay/EnergyGrid
+@onready var function_slots_container = $VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots
 @onready var available_functions = $VBox/BottomPanel/RightPanel/RightVBox/AvailableScroll/AvailableGrid
+
+# Stats UI
+@onready var level_label = $VBox/TopPanel/StatsPanel/StatsVBox/LevelLabel
 @onready var integrity_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/IntegrityBar
 @onready var xp_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/XPBar
 @onready var execution_bar = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/ExecutionBar
+@onready var level_up_button = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid/LevelUpButton
+
+# Controls
 @onready var run_button = $VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer/RunButton
 
 # Test agent
@@ -26,17 +33,22 @@ var is_running: bool = false
 var last_function_script_size: int = 0
 var last_current_function_index: int = 0
 
+# UI references to slots
+var function_slot_panels: Array[Panel] = []
+var energy_slot_panels: Array[Panel] = []
+
 func _ready():
-	# Connect the run button
-	run_button.pressed.connect(_on_run_button_pressed)
+	# Get references to all the slot panels
+	setup_slot_references()
 	
-	# Create level up button for testing
-	create_level_up_button()
+	# Connect buttons
+	run_button.pressed.connect(_on_run_button_pressed)
+	level_up_button.pressed.connect(_on_level_up_pressed)
 	
 	create_test_agent()
 	setup_available_functions()
 	
-	# Initial display - show everything including empty function slots
+	# Initial display - update existing UI nodes
 	update_energy_display()
 	update_function_display()
 	update_stats_display()
@@ -52,48 +64,37 @@ func _ready():
 	timer.autostart = true
 	add_child(timer)
 
-func create_level_up_button():
-	# Add level up button to the stats grid for testing
-	var bars_grid = $VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid
+func setup_slot_references():
+	# Get references to all function slot panels
+	function_slot_panels.clear()
+	for i in range(5):
+		var slot_name = "FunctionSlot%d" % (i + 1)
+		var slot_panel = function_slots_container.get_node(slot_name) as Panel
+		function_slot_panels.append(slot_panel)
 	
-	# Add spacer label
-	var spacer_label = Label.new()
-	spacer_label.text = ""
-	bars_grid.add_child(spacer_label)
-	
-	# Create level up button
-	var level_up_btn = Button.new()
-	level_up_btn.text = "Level Up"
-	level_up_btn.custom_minimum_size = Vector2(150, 0)
-	level_up_btn.add_theme_color_override("font_color", Color(0.00392157, 0.898039, 0.996078, 1))
-	level_up_btn.pressed.connect(_on_level_up_pressed)
-	bars_grid.add_child(level_up_btn)
-	
-	# Add another spacer
-	var spacer_label2 = Label.new()
-	spacer_label2.text = ""
-	bars_grid.add_child(spacer_label2)
+	# Get references to all energy slot panels
+	energy_slot_panels.clear()
+	for i in range(5):
+		var slot_name = "EnergySlot%d" % (i + 1)
+		var slot_panel = energy_grid.get_node(slot_name) as Panel
+		energy_slot_panels.append(slot_panel)
 
 func _on_run_button_pressed():
 	is_running = !is_running
 	
 	if is_running:
-		# Start running
 		run_button.text = "⏸ PAUSE"
 		run_button.add_theme_color_override("font_color", Color.ORANGE)
 		print("Script execution started")
 	else:
-		# Stop running
 		run_button.text = "▶ RUN"
 		run_button.add_theme_color_override("font_color", Color.GREEN)
 		
-		# Reset execution state
 		test_agent.attack_timer = 0.0
 		test_agent.current_function_index = 0
 		
 		print("Script execution paused - timer reset")
 	
-	# Force function display update since running state affects highlighting
 	update_function_display()
 	last_function_script_size = test_agent.function_script.size()
 	last_current_function_index = test_agent.current_function_index
@@ -103,7 +104,6 @@ func create_test_agent():
 	test_agent.agent_name = "Test Agent"
 	test_agent.level = 1
 	
-	# Calculate initial available slots
 	update_available_slots()
 	
 	# Give some starting energy
@@ -112,18 +112,16 @@ func create_test_agent():
 	test_agent.add_energy(CombatFunction.EnergyType.CYAN)
 
 func get_required_level_for_slot(slot_index: int) -> int:
-	# Define level requirements for each slot
 	match slot_index:
-		0: return 1  # First slot always available
-		1: return 3  # Second slot unlocks at level 3
-		2: return 6  # Third slot unlocks at level 6
-		3: return 10 # Fourth slot unlocks at level 10
-		4: return 15 # Fifth slot unlocks at level 15
-		_: return 999 # Invalid slot
+		0: return 1
+		1: return 3
+		2: return 6
+		3: return 10
+		4: return 15
+		_: return 999
 
 func update_available_slots():
-	# Calculate available slots based on current level
-	var new_available_slots = 1  # Always have at least 1 slot
+	var new_available_slots = 1
 	
 	for i in range(1, test_agent.max_function_slots):
 		if test_agent.level >= get_required_level_for_slot(i):
@@ -138,7 +136,7 @@ func update_available_slots():
 
 func level_up():
 	test_agent.level += 1
-	test_agent.xp = 0  # Reset XP for next level
+	test_agent.xp = 0
 	print("Level up! Now level ", test_agent.level)
 	update_available_slots()
 	update_stats_display()
@@ -234,15 +232,11 @@ func create_function_button(combat_function: CombatFunction) -> Button:
 	button.text = "%s\n%s\nDMG: %d" % [combat_function.icon, combat_function.name, combat_function.base_damage]
 	button.add_theme_color_override("font_color", combat_function.color)
 	
-	# Store the function data on the button
 	button.set_meta("combat_function", combat_function)
 	
-	# Connect signals
 	button.mouse_entered.connect(_on_function_button_hover.bind(button))
 	button.mouse_exited.connect(_on_function_button_unhover.bind(button))
 	button.pressed.connect(_on_function_button_pressed.bind(button))
-	
-	# Add drag detection using button_down/button_up
 	button.button_down.connect(_on_function_button_down.bind(button))
 	
 	return button
@@ -254,7 +248,6 @@ func _on_function_button_unhover(button: Button):
 	button.modulate = Color.WHITE
 
 func _on_function_button_pressed(button: Button):
-	# This handles single clicks - only add if not dragging
 	if not dragging_function:
 		var combat_function = button.get_meta("combat_function") as CombatFunction
 		add_function_to_script(combat_function)
@@ -263,241 +256,11 @@ func _on_function_button_down(button: Button):
 	print("Button down detected!")
 	var combat_function = button.get_meta("combat_function") as CombatFunction
 	
-	# Start a timer to detect if this becomes a drag
 	await get_tree().create_timer(0.1).timeout
 	
-	# If button is still pressed after 0.1 seconds, start drag
 	if button.button_pressed and not is_dragging:
 		print("Starting drag for: ", combat_function.name)
 		start_drag(combat_function, button)
-
-func _on_slot_button_down(button: Button):
-	print("Slot button down detected!")
-	var combat_function = button.get_meta("combat_function") as CombatFunction
-	var slot_index = button.get_meta("slot_index") as int
-	
-	# Start a timer to detect if this becomes a drag
-	await get_tree().create_timer(0.1).timeout
-	
-	# If button is still pressed after 0.1 seconds, start drag
-	if button.button_pressed and not is_dragging:
-		print("Starting slot drag for: ", combat_function.name)
-		start_slot_drag(combat_function, slot_index)
-
-func start_slot_drag(combat_function: CombatFunction, from_index: int):
-	# Prevent multiple drags
-	if is_dragging:
-		return
-	
-	is_dragging = true
-	dragging_function = combat_function
-	dragging_from_slot = from_index
-	
-	create_drag_preview(combat_function, true)
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	print("Started dragging function: ", combat_function.name, " from slot: ", from_index)
-
-func start_drag(combat_function: CombatFunction, button: Button):
-	# Check if script is full first
-	if test_agent.function_script.size() >= test_agent.available_function_slots:
-		flash_script_area_full()
-		return
-	
-	# Prevent multiple drags
-	if is_dragging:
-		return
-	
-	is_dragging = true
-	dragging_function = combat_function
-	dragging_from_slot = -1  # -1 indicates dragging from available functions
-	
-	create_drag_preview(combat_function, false)
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	print("Started dragging function: ", combat_function.name)
-
-func create_drag_preview(combat_function: CombatFunction, is_from_slot: bool):
-	# Clean up any existing preview first
-	cleanup_drag_preview()
-	
-	# Create new preview
-	drag_preview = Control.new()
-	drag_preview.name = "DragPreview"  # Name for debugging
-	
-	if is_from_slot:
-		# Create detailed preview for slot functions
-		drag_preview.custom_minimum_size = Vector2(200, 80)
-		
-		var preview_panel = Panel.new()
-		preview_panel.custom_minimum_size = Vector2(200, 80)
-		preview_panel.modulate = Color(1, 1, 1, 0.8)
-		
-		var preview_style = StyleBoxFlat.new()
-		preview_style.bg_color = Color.BLUE * 0.3
-		preview_style.border_color = Color.BLUE
-		preview_style.set_border_width_all(2)
-		preview_style.set_corner_radius_all(5)
-		preview_panel.add_theme_stylebox_override("panel", preview_style)
-		
-		var preview_label = RichTextLabel.new()
-		preview_label.anchors_preset = Control.PRESET_FULL_RECT
-		preview_label.bbcode_enabled = true
-		preview_label.fit_content = true
-		preview_label.text = "[center][color=%s]%s[/color]\n[b]%s[/b][/center]" % [
-			combat_function.color.to_html(), 
-			combat_function.icon, 
-			combat_function.name
-		]
-		preview_panel.add_child(preview_label)
-		drag_preview.add_child(preview_panel)
-	else:
-		# Create simple preview for available functions
-		drag_preview.custom_minimum_size = Vector2(120, 80)
-		
-		var preview_button = Button.new()
-		preview_button.custom_minimum_size = Vector2(120, 80)
-		preview_button.text = "%s\n%s\nDMG: %d" % [
-			combat_function.icon, 
-			combat_function.name, 
-			combat_function.base_damage
-		]
-		preview_button.add_theme_color_override("font_color", combat_function.color)
-		preview_button.modulate = Color(1, 1, 1, 0.7)
-		preview_button.disabled = true  # Prevent interaction
-		drag_preview.add_child(preview_button)
-	
-	# Add to viewport (not scene tree to avoid issues)
-	get_viewport().add_child(drag_preview)
-	drag_preview.z_index = 1000  # Ensure it's on top
-	
-	# Set initial position off-screen to avoid flicker
-	drag_preview.global_position = Vector2(-1000, -1000)
-
-func cleanup_drag_preview():
-	if is_instance_valid(drag_preview):
-		print("Cleaning up drag preview: ", drag_preview.name)
-		
-		# Remove from parent if it has one
-		if drag_preview.get_parent():
-			drag_preview.get_parent().remove_child(drag_preview)
-		
-		# queue for deletion
-		drag_preview.queue_free()
-	
-	drag_preview = null
-
-func cleanup_drag_state():
-	print("Cleaning up drag state")
-	
-	# Reset cursor
-	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
-	
-	# Clean up preview
-	cleanup_drag_preview()
-	
-	# Reset drag variables
-	dragging_function = null
-	dragging_from_slot = -1
-	is_dragging = false
-
-func flash_script_area_full():
-	var script_panel = $VBox/BottomPanel/LeftPanel
-	var original_modulate = script_panel.modulate
-	script_panel.modulate = Color.RED
-	var tween = create_tween()
-	tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
-
-func _input(event):
-	if not is_dragging or not is_instance_valid(drag_preview):
-		return
-	
-	if event is InputEventMouseMotion:
-		# Update drag preview position
-		var offset = Vector2(60, 40)  # Center the preview on cursor
-		drag_preview.global_position = event.global_position - offset
-		
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		print("Mouse released during drag at: ", event.global_position)
-		handle_drop(event.global_position)
-		
-		# Always clean up after drop
-		cleanup_drag_state()
-
-func handle_drop(drop_position: Vector2):
-	if not dragging_function:
-		print("No function being dragged")
-		return
-	
-	# Check if dropped over script area
-	var script_area = $VBox/BottomPanel/LeftPanel
-	var script_rect = Rect2(script_area.global_position, script_area.size)
-	
-	print("Drop position: ", drop_position)
-	print("Script area rect: ", script_rect)
-	print("Dragging from slot: ", dragging_from_slot)
-	
-	if script_rect.has_point(drop_position):
-		if dragging_from_slot >= 0:
-			# Dragging from an existing slot - determine target slot
-			var target_slot = get_target_slot_index(drop_position)
-			print("Target slot: ", target_slot)
-			
-			if target_slot >= 0 and target_slot != dragging_from_slot:
-				reorder_function(dragging_from_slot, target_slot)
-			else:
-				print("Dropped in same slot or invalid target")
-		else:
-			# Dragging from available functions - add to script
-			print("Adding function to script via drag!")
-			add_function_to_script(dragging_function)
-	else:
-		print("Dropped outside script area")
-
-func get_target_slot_index(drop_position: Vector2) -> int:
-	var function_list_global_pos = function_list.global_position
-	var slot_height = 90  # Approximate height including spacing
-	
-	var relative_y = drop_position.y - function_list_global_pos.y
-	var slot_index = int(relative_y / slot_height)
-	
-	# Clamp to valid range (only available slots)
-	if slot_index >= 0 and slot_index < test_agent.available_function_slots:
-		return slot_index
-	return -1
-
-func reorder_function(from_index: int, to_index: int):
-	print("Reordering function from ", from_index, " to ", to_index)
-	
-	if from_index < 0 or from_index >= test_agent.function_script.size():
-		print("Invalid from_index: ", from_index)
-		return
-	if to_index < 0 or to_index >= test_agent.available_function_slots:
-		print("Invalid to_index: ", to_index)
-		return
-	
-	var moving_function = test_agent.function_script[from_index]
-	print("Moving function: ", moving_function.name)
-	
-	# Remove from old position
-	test_agent.function_script.remove_at(from_index)
-	
-	# Calculate insert position
-	var insert_index = to_index
-	if to_index >= test_agent.function_script.size():
-		insert_index = test_agent.function_script.size()
-	elif to_index > from_index:
-		insert_index = to_index - 1
-	
-	# Clamp to valid range
-	insert_index = max(0, min(insert_index, test_agent.function_script.size()))
-	
-	test_agent.function_script.insert(insert_index, moving_function)
-	
-	# Update display
-	update_function_display()
-	last_function_script_size = test_agent.function_script.size()
-	last_current_function_index = test_agent.current_function_index
-	
-	print("Function reordered successfully")
 
 func add_function_to_script(combat_function: CombatFunction):
 	print("Attempting to add function: ", combat_function.name)
@@ -512,7 +275,44 @@ func add_function_to_script(combat_function: CombatFunction):
 		print("Available slots are full!")
 		flash_script_area_full()
 
-# Make sure to call cleanup when the scene is about to be freed
+func flash_script_area_full():
+	var script_panel = $VBox/BottomPanel/LeftPanel
+	var original_modulate = script_panel.modulate
+	script_panel.modulate = Color.RED
+	var tween = create_tween()
+	tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
+
+func start_drag(combat_function: CombatFunction, button: Button):
+	if test_agent.function_script.size() >= test_agent.available_function_slots:
+		flash_script_area_full()
+		return
+	
+	if is_dragging:
+		return
+	
+	is_dragging = true
+	dragging_function = combat_function
+	dragging_from_slot = -1
+	
+	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	print("Started dragging function: ", combat_function.name)
+
+func _input(event):
+	if not is_dragging:
+		return
+	
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		print("Mouse released during drag")
+		add_function_to_script(dragging_function)
+		cleanup_drag_state()
+
+func cleanup_drag_state():
+	print("Cleaning up drag state")
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	dragging_function = null
+	dragging_from_slot = -1
+	is_dragging = false
+
 func _exit_tree():
 	cleanup_drag_state()
 
@@ -520,7 +320,6 @@ func update_display():
 	update_energy_display()
 	update_stats_display()
 	
-	# Only update function display if something actually changed
 	if (test_agent.function_script.size() != last_function_script_size or 
 		test_agent.current_function_index != last_current_function_index):
 		update_function_display()
@@ -528,22 +327,8 @@ func update_display():
 		last_current_function_index = test_agent.current_function_index
 
 func update_energy_display():
-	# Clear existing energy display
-	for child in energy_display.get_children():
-		child.queue_free()
-	
-	# Create energy circles
-	var grid = GridContainer.new()
-	grid.columns = 5
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
-	grid.anchors_preset = Control.PRESET_CENTER
-	energy_display.add_child(grid)
-	
+	# Update existing energy slot panels instead of creating new ones
 	for i in range(5):
-		var circle = Panel.new()
-		circle.custom_minimum_size = Vector2(30, 30)
-		
 		var energy_type = test_agent.energy_queue[i]
 		var energy_color = get_energy_color(energy_type)
 		
@@ -552,20 +337,17 @@ func update_energy_display():
 		style.border_color = Color.WHITE
 		style.set_border_width_all(2)
 		style.set_corner_radius_all(15)
-		circle.add_theme_stylebox_override("panel", style)
 		
-		grid.add_child(circle)
+		energy_slot_panels[i].add_theme_stylebox_override("panel", style)
 
 func update_function_display():
-	# Clear existing function display
-	for child in function_list.get_children():
-		child.queue_free()
-	
-	# Create slots (empty, filled, or locked)
+	# Update existing function slot panels instead of creating new ones
 	for i in range(test_agent.max_function_slots):
-		var slot_panel = Panel.new()
-		slot_panel.custom_minimum_size.y = 80
-		slot_panel.custom_minimum_size.x = 400
+		var slot_panel = function_slot_panels[i]
+		
+		# Clear existing children
+		for child in slot_panel.get_children():
+			child.queue_free()
 		
 		# Style the slot based on state
 		var slot_style = StyleBoxFlat.new()
@@ -575,29 +357,15 @@ func update_function_display():
 			slot_style.bg_color = Color.DIM_GRAY * 0.1
 			slot_style.border_color = Color.GRAY * 0.5
 			slot_style.set_border_width_all(2)
-			slot_style.border_width_top = 0
-			slot_style.border_width_bottom = 0
 			
-			var locked_container = HBoxContainer.new()
-			locked_container.anchors_preset = Control.PRESET_FULL_RECT
-			
-			var lock_icon = Label.new()
-			lock_icon.text = "🔒"
-			lock_icon.custom_minimum_size.x = 40
-			lock_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lock_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			locked_container.add_child(lock_icon)
-			
-			var unlock_text = Label.new()
+			var locked_label = Label.new()
 			var required_level = get_required_level_for_slot(i)
-			unlock_text.text = "Unlocks at Level %d" % required_level
-			unlock_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-			unlock_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			unlock_text.add_theme_color_override("font_color", Color.GRAY)
-			unlock_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			locked_container.add_child(unlock_text)
-			
-			slot_panel.add_child(locked_container)
+			locked_label.text = "🔒 Unlocks at Level %d" % required_level
+			locked_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			locked_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			locked_label.anchors_preset = Control.PRESET_FULL_RECT
+			locked_label.add_theme_color_override("font_color", Color.GRAY)
+			slot_panel.add_child(locked_label)
 			
 		elif i < test_agent.function_script.size():
 			# Filled slot
@@ -607,8 +375,9 @@ func update_function_display():
 				slot_style.bg_color = Color.BLUE * 0.3
 			else:
 				slot_style.bg_color = Color.DARK_GRAY * 0.3
-			var function_slot = create_function_slot(current_function, i)
-			slot_panel.add_child(function_slot)
+			
+			var function_content = create_function_slot_content(current_function, i)
+			slot_panel.add_child(function_content)
 		else:
 			# Empty available slot
 			slot_style.bg_color = Color.DIM_GRAY * 0.2
@@ -624,33 +393,25 @@ func update_function_display():
 			slot_panel.add_child(empty_label)
 		
 		slot_panel.add_theme_stylebox_override("panel", slot_style)
-		function_list.add_child(slot_panel)
 
-func create_function_slot(combat_function: CombatFunction, index: int) -> Control:
-	var slot = Control.new()
-	slot.anchors_preset = Control.PRESET_FULL_RECT
+func create_function_slot_content(combat_function: CombatFunction, index: int) -> Control:
+	var content = Control.new()
+	content.anchors_preset = Control.PRESET_FULL_RECT
 	
 	var hbox = HBoxContainer.new()
 	hbox.anchors_preset = Control.PRESET_FULL_RECT
 	hbox.add_theme_constant_override("separation", 10)
-	slot.add_child(hbox)
+	content.add_child(hbox)
 	
-	# Function icon/name - make this draggable with a button
-	var drag_button = Button.new()
-	drag_button.custom_minimum_size.x = 200
-	drag_button.text = "%s %s" % [combat_function.icon, combat_function.name]
-	drag_button.add_theme_color_override("font_color", combat_function.color)
-	drag_button.flat = true
-	drag_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# Function name/icon
+	var name_label = Label.new()
+	name_label.text = "%s %s" % [combat_function.icon, combat_function.name]
+	name_label.add_theme_color_override("font_color", combat_function.color)
+	name_label.custom_minimum_size.x = 200
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hbox.add_child(name_label)
 	
-	# Make the button draggable
-	drag_button.set_meta("combat_function", combat_function)
-	drag_button.set_meta("slot_index", index)
-	drag_button.button_down.connect(_on_slot_button_down.bind(drag_button))
-	
-	hbox.add_child(drag_button)
-	
-	# Requirements
+	# Energy requirements
 	var req_container = HBoxContainer.new()
 	for energy in combat_function.energy_cost:
 		var req_circle = Panel.new()
@@ -662,7 +423,7 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 		req_container.add_child(req_circle)
 	hbox.add_child(req_container)
 	
-	# Generated energy
+	# Energy generated
 	var gen_container = HBoxContainer.new()
 	for energy in combat_function.energy_generated:
 		var gen_circle = Panel.new()
@@ -676,7 +437,7 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 		gen_container.add_child(gen_circle)
 	hbox.add_child(gen_container)
 	
-	# Spacer to push remove button to the right
+	# Spacer
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hbox.add_child(spacer)
@@ -688,29 +449,20 @@ func create_function_slot(combat_function: CombatFunction, index: int) -> Contro
 	remove_btn.add_theme_color_override("font_color", Color.RED)
 	remove_btn.add_theme_font_size_override("font_size", 16)
 	remove_btn.flat = true
-	
-	# Use a different approach - no custom hover handlers, just styling
 	remove_btn.pressed.connect(_on_remove_function.bind(index))
-	
-	# Set up hover colors using theme overrides instead of modulation
 	remove_btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	
 	hbox.add_child(remove_btn)
 	
-	return slot
+	return content
 
 func _on_remove_function(index: int):
 	test_agent.function_script.remove_at(index)
-	# Force function display update since we changed the script
 	update_function_display()
 	last_function_script_size = test_agent.function_script.size()
 	last_current_function_index = test_agent.current_function_index
 
 func update_stats_display():
-	# Update level display
-	var level_label = $VBox/TopPanel/StatsPanel/StatsVBox/LevelLabel
 	level_label.text = str(test_agent.level)
-	
 	integrity_bar.value = test_agent.integrity * 100
 	execution_bar.value = (test_agent.attack_timer / test_agent.execution_speed) * 100
 
@@ -728,17 +480,13 @@ func get_energy_color(type: CombatFunction.EnergyType) -> Color:
 			return Color.WHITE
 
 func _on_combat_timer_timeout():
-	# Only process if we're running and have functions to execute
 	if is_running and not test_agent.function_script.is_empty():
-		# Update attack timer (0.1 seconds per tick)
 		test_agent.attack_timer += 0.1
 		
-		# Check if ready to execute next function
 		if test_agent.attack_timer >= test_agent.execution_speed:
 			execute_next_function()
 			test_agent.attack_timer = 0.0
 	elif not is_running:
-		# Keep timer at 0 when not running
 		test_agent.attack_timer = 0.0
 	
 	update_display()
@@ -747,30 +495,23 @@ func execute_next_function():
 	if test_agent.function_script.is_empty():
 		return
 	
-	# Try each function in order starting from current index
 	var functions_tried = 0
 	var original_index = test_agent.current_function_index
 	
 	while functions_tried < test_agent.function_script.size():
 		var current_function = test_agent.function_script[test_agent.current_function_index]
 		
-		# Check if we can afford this function
 		if test_agent.consume_energy(current_function.energy_cost):
-			# Execute the function
 			print("Executing: %s for %d damage" % [current_function.name, current_function.base_damage])
 			
-			# Add generated energy
 			for energy in current_function.energy_generated:
 				test_agent.add_energy(energy)
 			
-			# Move to next function for next time
 			test_agent.current_function_index = (test_agent.current_function_index + 1) % test_agent.function_script.size()
 			return
 		
-		# Try next function
 		test_agent.current_function_index = (test_agent.current_function_index + 1) % test_agent.function_script.size()
 		functions_tried += 1
 	
-	# If we get here, no function could execute
 	print("No functions can execute - insufficient energy")
 	test_agent.current_function_index = original_index

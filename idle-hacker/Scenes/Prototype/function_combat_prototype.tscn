@@ -63,7 +63,8 @@ grow_vertical = 2
 [node name="LevelLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
-text = "12"
+text = "1"
+horizontal_alignment = 1
 
 [node name="BarsGrid" type="GridContainer" parent="VBox/TopPanel/StatsPanel/StatsVBox"]
 layout_mode = 2
@@ -124,15 +125,57 @@ theme_override_font_sizes/font_size = 12
 text = "5hz"
 horizontal_alignment = 2
 
+[node name="SpacerLabel" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
+
 [node name="LevelUpButton" type="Button" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
-visible = false
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
-theme_override_font_sizes/font_size = 10
 text = "Level Up"
+
+[node name="SpacerLabel2" type="Label" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
+layout_mode = 2
 
 [node name="EnergyDisplay" type="Panel" parent="VBox/TopPanel"]
 custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="EnergyGrid" type="GridContainer" parent="VBox/TopPanel/EnergyDisplay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -75.0
+offset_top = -25.0
+offset_right = 75.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 5
+
+[node name="EnergySlot1" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="EnergySlot2" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="EnergySlot3" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="EnergySlot4" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="EnergySlot5" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
 [node name="BottomPanel" type="HBoxContainer" parent="VBox"]
@@ -187,10 +230,30 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
-[node name="FunctionList" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer"]
+[node name="FunctionSlots" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
+
+[node name="FunctionSlot1" type="Panel" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
+
+[node name="FunctionSlot2" type="Panel" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
+
+[node name="FunctionSlot3" type="Panel" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
+
+[node name="FunctionSlot4" type="Panel" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
+
+[node name="FunctionSlot5" type="Panel" parent="VBox/BottomPanel/LeftPanel/LeftVBox/FunctionListContainer/FunctionSlots"]
+custom_minimum_size = Vector2(400, 80)
+layout_mode = 2
 
 [node name="RightPanel" type="Panel" parent="VBox/BottomPanel"]
 visible = false

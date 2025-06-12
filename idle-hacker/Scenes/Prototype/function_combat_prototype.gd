@@ -97,7 +97,8 @@ var test_agent: FunctionAgent
 # Drag and drop variables
 var drag_preview: Control = null
 var dragging_function: CombatFunction = null
-var dragging_from_slot: int = -1  # Track which slot we're dragging from
+var dragging_from_slot: int = -1
+var is_dragging: bool = false  # Add explicit dragging state
 
 # Execution control
 var is_running: bool = false
@@ -251,7 +252,7 @@ func create_function_button(combat_function: CombatFunction) -> Button:
 	
 	# Add drag detection using button_down/button_up
 	button.button_down.connect(_on_function_button_down.bind(button))
-	button.button_up.connect(_on_function_button_up.bind(button))
+	#button.button_up.connect(_on_function_button_up.bind(button))
 	
 	return button
 
@@ -275,14 +276,9 @@ func _on_function_button_down(button: Button):
 	await get_tree().create_timer(0.1).timeout
 	
 	# If button is still pressed after 0.1 seconds, start drag
-	if button.button_pressed:
+	if button.button_pressed and not is_dragging:
 		print("Starting drag for: ", combat_function.name)
 		start_drag(combat_function, button)
-
-func _on_function_button_up(button: Button):
-	print("Button up detected!")
-	# If we were dragging, this will be handled by _input
-	pass
 
 func _on_slot_button_down(button: Button):
 	print("Slot button down detected!")
@@ -293,170 +289,152 @@ func _on_slot_button_down(button: Button):
 	await get_tree().create_timer(0.1).timeout
 	
 	# If button is still pressed after 0.1 seconds, start drag
-	if button.button_pressed:
+	if button.button_pressed and not is_dragging:
 		print("Starting slot drag for: ", combat_function.name)
 		start_slot_drag(combat_function, slot_index)
 
 func start_slot_drag(combat_function: CombatFunction, from_index: int):
-	# Clean up any existing drag state first
-	cleanup_drag_state()
+	# Prevent multiple drags
+	if is_dragging:
+		return
 	
+	is_dragging = true
 	dragging_function = combat_function
 	dragging_from_slot = from_index
 	
-	# Create drag preview
-	drag_preview = Control.new()
-	drag_preview.custom_minimum_size = Vector2(200, 80)
-	drag_preview.position = Vector2(0, 0)  # Start at origin to avoid sticking
-	
-	var preview_panel = Panel.new()
-	preview_panel.custom_minimum_size = Vector2(200, 80)
-	preview_panel.modulate = Color(1, 1, 1, 0.8)
-	
-	var preview_style = StyleBoxFlat.new()
-	preview_style.bg_color = Color.BLUE * 0.3
-	preview_style.border_color = Color.BLUE
-	preview_style.set_border_width_all(2)
-	preview_style.set_corner_radius_all(5)
-	preview_panel.add_theme_stylebox_override("panel", preview_style)
-	
-	var preview_label = RichTextLabel.new()
-	preview_label.anchors_preset = Control.PRESET_FULL_RECT
-	preview_label.bbcode_enabled = true
-	preview_label.fit_content = true
-	preview_label.text = "[center][color=%s]%s[/color]\n[b]%s[/b][/center]" % [combat_function.color.to_html(), combat_function.icon, combat_function.name]
-	preview_panel.add_child(preview_label)
-	
-	drag_preview.add_child(preview_panel)
-	
-	# Add to scene
-	get_viewport().add_child(drag_preview)
-	drag_preview.z_index = 100
-	
-	# Start following mouse
+	create_drag_preview(combat_function, true)
 	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 	print("Started dragging function: ", combat_function.name, " from slot: ", from_index)
 
 func start_drag(combat_function: CombatFunction, button: Button):
+	# Check if script is full first
 	if test_agent.function_script.size() >= test_agent.max_function_slots:
-		# Flash the script area to show it's full
-		var script_panel = $VBox/BottomPanel/LeftPanel
-		var original_modulate = script_panel.modulate
-		script_panel.modulate = Color.RED
-		var tween = create_tween()
-		tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
+		flash_script_area_full()
 		return
 	
+	# Prevent multiple drags
+	if is_dragging:
+		return
+	
+	is_dragging = true
 	dragging_function = combat_function
 	dragging_from_slot = -1  # -1 indicates dragging from available functions
 	
-	# Create drag preview for available function
-	drag_preview = Control.new()
-	drag_preview.custom_minimum_size = Vector2(120, 80)
-	var available_preview_button = Button.new()
-	available_preview_button.custom_minimum_size = Vector2(120, 80)
-	available_preview_button.text = button.text
-	available_preview_button.add_theme_color_override("font_color", combat_function.color)
-	available_preview_button.modulate = Color(1, 1, 1, 0.7)
-	drag_preview.add_child(available_preview_button)
-	
-	# Add to scene
-	get_viewport().add_child(drag_preview)
-	drag_preview.z_index = 100
-	
-	# Start following mouse
+	create_drag_preview(combat_function, false)
 	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	dragging_function = combat_function
-	#dragging_from_slot = from_index
-	
-	## Create drag preview
-	#drag_preview = Control.new()
-	#drag_preview.custom_minimum_size = Vector2(200, 80)
-	
-	var preview_panel = Panel.new()
-	preview_panel.custom_minimum_size = Vector2(200, 80)
-	preview_panel.modulate = Color(1, 1, 1, 0.8)
-	
-	var preview_style = StyleBoxFlat.new()
-	preview_style.bg_color = Color.BLUE * 0.3
-	preview_style.border_color = Color.BLUE
-	preview_style.set_border_width_all(2)
-	preview_style.set_corner_radius_all(5)
-	preview_panel.add_theme_stylebox_override("panel", preview_style)
-	
-	var preview_label = RichTextLabel.new()
-	preview_label.anchors_preset = Control.PRESET_FULL_RECT
-	preview_label.bbcode_enabled = true
-	preview_label.fit_content = true
-	preview_label.text = "[center][color=%s]%s[/color]\n[b]%s[/b][/center]" % [combat_function.color.to_html(), combat_function.icon, combat_function.name]
-	preview_panel.add_child(preview_label)
-	
-	drag_preview.add_child(preview_panel)
-	
-	# Add to scene
-	get_viewport().add_child(drag_preview)
-	drag_preview.z_index = 100
-	
-	# Start following mouse
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	#print("Started dragging function: ", combat_function.name, " from slot: ", from_index)
-	if test_agent.function_script.size() >= test_agent.max_function_slots:
-		# Flash the script area to show it's full
-		var script_panel = $VBox/BottomPanel/LeftPanel
-		var original_modulate = script_panel.modulate
-		script_panel.modulate = Color.RED
-		var tween = create_tween()
-		tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
-		return
-	
-	dragging_function = combat_function
-	
-	# Create drag preview
-	drag_preview = Control.new()
-	drag_preview.custom_minimum_size = Vector2(120, 80)
-	var preview_button = Button.new()
-	preview_button.custom_minimum_size = Vector2(120, 80)
-	preview_button.text = button.text
-	preview_button.add_theme_color_override("font_color", combat_function.color)
-	preview_button.modulate = Color(1, 1, 1, 0.7)
-	drag_preview.add_child(preview_button)
-	
-	# Add to scene
-	get_viewport().add_child(drag_preview)
-	drag_preview.z_index = 100
-	
-	# Start following mouse
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	print("Started dragging function: ", combat_function.name)
 
-func _input(event):
-	if dragging_function and drag_preview:
-		if event is InputEventMouseMotion:
-			print("Dragging to: ", event.global_position)
-			drag_preview.global_position = event.global_position - Vector2(60, 40)
-		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-			print("Mouse released during drag!")
-			end_drag(event.global_position)
-			# Force cleanup of drag state
-			cleanup_drag_state()
+func create_drag_preview(combat_function: CombatFunction, is_from_slot: bool):
+	# Clean up any existing preview first
+	cleanup_drag_preview()
+	
+	# Create new preview
+	drag_preview = Control.new()
+	drag_preview.name = "DragPreview"  # Name for debugging
+	
+	if is_from_slot:
+		# Create detailed preview for slot functions
+		drag_preview.custom_minimum_size = Vector2(200, 80)
+		
+		var preview_panel = Panel.new()
+		preview_panel.custom_minimum_size = Vector2(200, 80)
+		preview_panel.modulate = Color(1, 1, 1, 0.8)
+		
+		var preview_style = StyleBoxFlat.new()
+		preview_style.bg_color = Color.BLUE * 0.3
+		preview_style.border_color = Color.BLUE
+		preview_style.set_border_width_all(2)
+		preview_style.set_corner_radius_all(5)
+		preview_panel.add_theme_stylebox_override("panel", preview_style)
+		
+		var preview_label = RichTextLabel.new()
+		preview_label.anchors_preset = Control.PRESET_FULL_RECT
+		preview_label.bbcode_enabled = true
+		preview_label.fit_content = true
+		preview_label.text = "[center][color=%s]%s[/color]\n[b]%s[/b][/center]" % [
+			combat_function.color.to_html(), 
+			combat_function.icon, 
+			combat_function.name
+		]
+		preview_panel.add_child(preview_label)
+		drag_preview.add_child(preview_panel)
+	else:
+		# Create simple preview for available functions
+		drag_preview.custom_minimum_size = Vector2(120, 80)
+		
+		var preview_button = Button.new()
+		preview_button.custom_minimum_size = Vector2(120, 80)
+		preview_button.text = "%s\n%s\nDMG: %d" % [
+			combat_function.icon, 
+			combat_function.name, 
+			combat_function.base_damage
+		]
+		preview_button.add_theme_color_override("font_color", combat_function.color)
+		preview_button.modulate = Color(1, 1, 1, 0.7)
+		preview_button.disabled = true  # Prevent interaction
+		drag_preview.add_child(preview_button)
+	
+	# Add to viewport (not scene tree to avoid issues)
+	get_viewport().add_child(drag_preview)
+	drag_preview.z_index = 1000  # Ensure it's on top
+	
+	# Set initial position off-screen to avoid flicker
+	drag_preview.global_position = Vector2(-1000, -1000)
+
+func cleanup_drag_preview():
+	if is_instance_valid(drag_preview):
+		print("Cleaning up drag preview: ", drag_preview.name)
+		
+		# Remove from parent if it has one
+		if drag_preview.get_parent():
+			drag_preview.get_parent().remove_child(drag_preview)
+		
+		# Queue for deletion
+		drag_preview.queue_free()
+	
+	drag_preview = null
 
 func cleanup_drag_state():
 	print("Cleaning up drag state")
+	
+	# Reset cursor
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	
-	if drag_preview and is_instance_valid(drag_preview):
-		print("Removing drag preview")
-		drag_preview.queue_free()
-		
-		# Force immediate removal by also removing from parent
-		if drag_preview.get_parent():
-			drag_preview.get_parent().remove_child(drag_preview)
+	# Clean up preview
+	cleanup_drag_preview()
 	
-	drag_preview = null
+	# Reset drag variables
 	dragging_function = null
 	dragging_from_slot = -1
+	is_dragging = false
 
-func end_drag(drop_position: Vector2):
-	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+func flash_script_area_full():
+	var script_panel = $VBox/BottomPanel/LeftPanel
+	var original_modulate = script_panel.modulate
+	script_panel.modulate = Color.RED
+	var tween = create_tween()
+	tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
+
+func _input(event):
+	if not is_dragging or not is_instance_valid(drag_preview):
+		return
+	
+	if event is InputEventMouseMotion:
+		# Update drag preview position
+		var offset = Vector2(60, 40)  # Center the preview on cursor
+		drag_preview.global_position = event.global_position - offset
+		
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		print("Mouse released during drag at: ", event.global_position)
+		handle_drop(event.global_position)
+		
+		# Always clean up after drop
+		cleanup_drag_state()
+
+func handle_drop(drop_position: Vector2):
+	if not dragging_function:
+		print("No function being dragged")
+		return
 	
 	# Check if dropped over script area
 	var script_area = $VBox/BottomPanel/LeftPanel
@@ -464,30 +442,26 @@ func end_drag(drop_position: Vector2):
 	
 	print("Drop position: ", drop_position)
 	print("Script area rect: ", script_rect)
-	print("Has dragging function: ", dragging_function != null)
 	print("Dragging from slot: ", dragging_from_slot)
 	
-	if script_rect.has_point(drop_position) and dragging_function:
+	if script_rect.has_point(drop_position):
 		if dragging_from_slot >= 0:
 			# Dragging from an existing slot - determine target slot
 			var target_slot = get_target_slot_index(drop_position)
 			print("Target slot: ", target_slot)
+			
 			if target_slot >= 0 and target_slot != dragging_from_slot:
 				reorder_function(dragging_from_slot, target_slot)
-			elif target_slot < 0:
-				# Dropped in script area but not on a specific slot - keep in same position
-				print("Dropped in script area but not on specific slot")
+			else:
+				print("Dropped in same slot or invalid target")
 		else:
 			# Dragging from available functions - add to script
 			print("Adding function to script via drag!")
 			add_function_to_script(dragging_function)
-	elif dragging_function:
+	else:
 		print("Dropped outside script area")
-	
-	# Don't clean up here - let cleanup_drag_state handle it
 
 func get_target_slot_index(drop_position: Vector2) -> int:
-	# Calculate which slot the drop position corresponds to
 	var function_list_global_pos = function_list.global_position
 	var slot_height = 90  # Approximate height including spacing
 	
@@ -508,33 +482,24 @@ func reorder_function(from_index: int, to_index: int):
 	if to_index < 0 or to_index >= test_agent.max_function_slots:
 		print("Invalid to_index: ", to_index)
 		return
-		
+	
 	var moving_function = test_agent.function_script[from_index]
 	print("Moving function: ", moving_function.name)
 	
 	# Remove from old position
 	test_agent.function_script.remove_at(from_index)
-	print("Removed from position: ", from_index, " new size: ", test_agent.function_script.size())
 	
 	# Calculate insert position
 	var insert_index = to_index
-	
-	# If dropping into an empty slot beyond current script size, append to end
 	if to_index >= test_agent.function_script.size():
 		insert_index = test_agent.function_script.size()
-		print("Dropping to empty slot at end, insert_index: ", insert_index)
-	else:
-		# If moving to earlier position, adjust for removal
-		if to_index > from_index:
-			insert_index = to_index - 1
-		print("Dropping to existing slot, insert_index: ", insert_index)
+	elif to_index > from_index:
+		insert_index = to_index - 1
 	
 	# Clamp to valid range
 	insert_index = max(0, min(insert_index, test_agent.function_script.size()))
-	print("Final insert_index: ", insert_index)
 	
 	test_agent.function_script.insert(insert_index, moving_function)
-	print("Inserted at position: ", insert_index, " new size: ", test_agent.function_script.size())
 	
 	# Update display
 	update_function_display()
@@ -545,18 +510,20 @@ func reorder_function(from_index: int, to_index: int):
 
 func add_function_to_script(combat_function: CombatFunction):
 	print("Attempting to add function: ", combat_function.name)
-	print("Current script size: ", test_agent.function_script.size())
-	print("Max slots: ", test_agent.max_function_slots)
 	
 	if test_agent.function_script.size() < test_agent.max_function_slots:
 		test_agent.function_script.append(combat_function)
-		# Force function display update since we changed the script
 		update_function_display()
 		last_function_script_size = test_agent.function_script.size()
 		last_current_function_index = test_agent.current_function_index
 		print("Function added successfully!")
 	else:
 		print("Script is full!")
+		flash_script_area_full()
+
+# Make sure to call cleanup when the scene is about to be freed
+func _exit_tree():
+	cleanup_drag_state()
 
 func update_display():
 	update_energy_display()

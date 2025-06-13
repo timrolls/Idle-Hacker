@@ -156,8 +156,59 @@ func update_energy_display():
 		var energy_type = test_agent.energy_queue[i]
 		energy_slot_instances[i].set_energy_type(energy_type)
 
+func start_drag_from_slot(function: CombatFunction, from_slot_index: int):
+	"""Called when dragging starts from a function slot"""
+	print("Starting drag from slot %d: %s" % [from_slot_index, function.name])
+	
+	# Set up global drag state for compatibility
+	is_dragging = true
+	dragging_function = function
+	dragging_from_slot = from_slot_index
+	
+	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+
+func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
+	"""Handle when a function is dropped onto a slot"""
+	print("Function dropped: %s from slot %d to slot %d" % [function.name, from_slot, to_slot])
+	
+	if from_slot == -1:
+		# Dropped from available functions
+		if test_agent.function_script.size() < test_agent.available_function_slots:
+			# Insert at specific position if not at the end
+			if to_slot < test_agent.function_script.size():
+				test_agent.function_script.insert(to_slot, function)
+			else:
+				test_agent.function_script.append(function)
+			
+			update_function_display()
+			last_function_script_size = test_agent.function_script.size()
+			print("Function added to slot %d successfully!" % to_slot)
+		else:
+			print("No available slots!")
+			flash_script_area_full()
+	else:
+		# Moved from one slot to another
+		if from_slot < test_agent.function_script.size() and to_slot != from_slot:
+			var moved_function = test_agent.function_script[from_slot]
+			test_agent.function_script.remove_at(from_slot)
+			
+			# Adjust target index if needed
+			var insert_index = to_slot
+			if from_slot < to_slot:
+				insert_index -= 1
+			
+			if insert_index < test_agent.function_script.size():
+				test_agent.function_script.insert(insert_index, moved_function)
+			else:
+				test_agent.function_script.append(moved_function)
+			
+			update_function_display()
+			print("Function moved from slot %d to slot %d" % [from_slot, to_slot])
+	
+	cleanup_drag_state()
+
 func _on_function_drag_started(combat_function: CombatFunction, button_node: Button):
-	"""Handle when a function button starts being dragged"""
+	"""Handle when a function button starts being dragged (legacy compatibility)"""
 	if test_agent.function_script.size() >= test_agent.available_function_slots:
 		flash_script_area_full()
 		return
@@ -175,6 +226,7 @@ func _on_function_removed(slot_index: int):
 		last_function_script_size = test_agent.function_script.size()
 		print("Function removed from slot ", slot_index)
 
+# Legacy drag functions for compatibility
 func start_drag(combat_function: CombatFunction, button: Button):
 	if test_agent.function_script.size() >= test_agent.available_function_slots:
 		flash_script_area_full()
@@ -191,6 +243,7 @@ func start_drag(combat_function: CombatFunction, button: Button):
 	print("Started dragging function: ", combat_function.name)
 
 func _input(event):
+	# Legacy drag system fallback
 	if not is_dragging:
 		return
 	
@@ -374,10 +427,10 @@ func execute_current_function():
 		for energy_type in current_function.energy_generated:
 			test_agent.add_energy(energy_type)
 		
-		## Add XP
-		#test_agent.xp += current_function.xp_reward
-		#if test_agent.xp >= 100:
-			#level_up()
+		# Add XP
+		test_agent.xp += current_function.xp_reward
+		if test_agent.xp >= 100:
+			level_up()
 	else:
 		print("Not enough energy for: ", current_function.name)
 	

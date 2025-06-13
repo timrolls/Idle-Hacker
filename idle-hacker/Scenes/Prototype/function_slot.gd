@@ -143,7 +143,6 @@ func get_energy_color(energy_type: CombatFunction.EnergyType) -> Color:
 		CombatFunction.EnergyType.RED: return Color.RED
 		CombatFunction.EnergyType.BLUE: return Color.BLUE
 		CombatFunction.EnergyType.CYAN: return Color.CYAN
-
 		_: return Color.WHITE
 
 func _gui_input(event):
@@ -151,6 +150,19 @@ func _gui_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		if current_state == SlotState.FILLED or current_state == SlotState.EXECUTING:
 			remove_function()
+	
+	# Handle left click for dragging functions OUT of slots
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if current_state == SlotState.FILLED or current_state == SlotState.EXECUTING:
+			start_function_drag()
+
+func start_function_drag():
+	"""Start dragging this function out of the slot"""
+	if combat_function:
+		# Signal to main script that we're dragging FROM a slot
+		var main_script = get_tree().get_first_node_in_group("combat_prototype")
+		if main_script and main_script.has_method("start_drag_from_slot"):
+			main_script.start_drag_from_slot(combat_function, slot_index)
 
 func remove_function():
 	function_removed.emit(slot_index)
@@ -163,6 +175,29 @@ func accept_function(function: CombatFunction):
 		update_display()
 		return true
 	return false
+
+func can_drop_data(position: Vector2, data) -> bool:
+	"""Check if we can accept a dropped function"""
+	if current_state != SlotState.EMPTY:
+		return false
+	
+	# Check if the data is a combat function
+	if data is Dictionary and data.has("type") and data["type"] == "combat_function":
+		return true
+	
+	return false
+
+func drop_data(position: Vector2, data):
+	"""Handle dropping a function onto this slot"""
+	if data is Dictionary and data["type"] == "combat_function":
+		var function = data["function"] as CombatFunction
+		var from_slot = data.get("from_slot", -1)
+		
+		if accept_function(function):
+			# Notify main script of successful drop
+			var main_script = get_tree().get_first_node_in_group("combat_prototype")
+			if main_script and main_script.has_method("handle_function_drop"):
+				main_script.handle_function_drop(function, from_slot, slot_index)
 
 func clear_function():
 	"""Call this to remove the function from this slot"""

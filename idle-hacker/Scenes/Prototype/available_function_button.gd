@@ -126,6 +126,40 @@ func _on_button_down():
 	if button.button_pressed:
 		print("Starting drag for: ", combat_function.name)
 		function_drag_started.emit(combat_function, button)
+		
+		# Start Godot's built-in drag and drop system
+		var drag_data = {
+			"type": "combat_function",
+			"function": combat_function,
+			"from_slot": -1  # -1 indicates from available functions
+		}
+		#set_drag_preview(create_drag_preview())
+		button.set_drag_preview(create_drag_preview())
+
+func create_drag_preview() -> Control:
+	"""Create a visual preview for dragging"""
+	var preview = Control.new()
+	var preview_label = Label.new()
+	preview_label.text = "%s %s" % [combat_function.icon, combat_function.name]
+	preview_label.add_theme_color_override("font_color", combat_function.color)
+	preview.add_child(preview_label)
+	return preview
+
+func get_drag_data(position: Vector2):
+	"""Override to provide drag data for Godot's drag system"""
+	if combat_function:
+		var drag_data = {
+			"type": "combat_function",
+			"function": combat_function,
+			"from_slot": -1
+		}
+		
+		# Create visual feedback
+		set_drag_preview(create_drag_preview())
+		
+		return drag_data
+	
+	return null
 
 func _on_mouse_entered():
 	# Optional: Add hover effects or tooltips here

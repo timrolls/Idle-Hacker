@@ -154,8 +154,8 @@ override_bbcodeEnabled = true
 override_clipContents = false
 override_fitContent = true
 metadata/_custom_type_script = "uid://2f4fi75scxes"
-metadata/mouse_position = Vector2(1467.99, 146.187)
-metadata/frame = 3063184
+metadata/mouse_position = Vector2(1080.11, 188.857)
+metadata/frame = 3167433
 metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
 
 [node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]

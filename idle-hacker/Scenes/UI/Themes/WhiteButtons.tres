@@ -1,10 +1,15 @@
-[gd_resource type="Theme" load_steps=9 format=3 uid="uid://c0lnmv5pnxk70"]
+[gd_resource type="Theme" load_steps=10 format=3 uid="uid://dtl0l5rsfeodo"]
 
-[ext_resource type="FontFile" uid="uid://bxsau2kdacj41" path="res://Assets/Fonts/JetBrainsMono-VariableFont_wght.ttf" id="1_hdpob"]
+[ext_resource type="FontFile" uid="uid://bxsau2kdacj41" path="res://Assets/Fonts/JetBrainsMono-VariableFont_wght.ttf" id="1_04wbw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_04wbw"]
+bg_color = Color(0.00392157, 0.898039, 0.996078, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_db2c1"]
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qoav6"]
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i0u5w"]
 
@@ -19,7 +24,9 @@ bg_color = Color(0.8, 0.8, 0.8, 1)
 bg_color = Color(1, 1, 1, 1)
 
 [resource]
-Button/fonts/font = ExtResource("1_hdpob")
+Button/colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
+Button/fonts/font = ExtResource("1_04wbw")
+Button/styles/focus = SubResource("StyleBoxFlat_04wbw")
 Button/styles/hover = SubResource("StyleBoxFlat_db2c1")
 Button/styles/normal = SubResource("StyleBoxFlat_qoav6")
 Button/styles/pressed = SubResource("StyleBoxFlat_i0u5w")
@@ -32,7 +39,7 @@ Label/constants/shadow_offset_x = 1
 Label/constants/shadow_offset_y = 1
 Label/constants/shadow_outline_size = 1
 Label/font_sizes/font_size = 16
-Label/fonts/font = ExtResource("1_hdpob")
+Label/fonts/font = ExtResource("1_04wbw")
 Label/styles/normal = SubResource("StyleBoxEmpty_roex6")
 Panel/styles/panel = SubResource("StyleBoxFlat_sp1y8")
 ProgressBar/styles/background = SubResource("StyleBoxFlat_wltoh")

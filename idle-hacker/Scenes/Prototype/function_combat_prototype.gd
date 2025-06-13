@@ -119,7 +119,7 @@ func _on_edit_button_pressed():
 		if is_running:
 			is_running = false
 			run_button.text = "▶ RUN"
-			run_button.add_theme_color_override("font_color", Color.GREEN)
+			#run_button.add_theme_color_override("font_color", Color.GREEN)
 		
 		# Reset attack timer to 0 when entering edit mode
 		test_agent.attack_timer = 0.0
@@ -127,20 +127,20 @@ func _on_edit_button_pressed():
 		# Show right panel and update edit button
 		right_panel.visible = true
 		edit_button.text = "✓ DONE"
-		edit_button.add_theme_color_override("font_color", Color.GREEN)
+		#edit_button.add_theme_color_override("font_color", Color.GREEN)
 		
 		print("Edit mode enabled - execution paused")
 	else:
 		# Hide right panel and update edit button
 		right_panel.visible = false
 		edit_button.text = "✏ EDIT"
-		edit_button.add_theme_color_override("font_color", Color.WHITE)
+		#edit_button.add_theme_color_override("font_color", Color.WHITE)
 		
 		# Resume execution if it was running before edit
 		if was_running_before_edit:
 			is_running = true
 			run_button.text = "⏸ PAUSE"
-			run_button.add_theme_color_override("font_color", Color.ORANGE)
+			#run_button.add_theme_color_override("font_color", Color.ORANGE)
 			print("Edit mode disabled - execution resumed")
 		else:
 			print("Edit mode disabled - execution remains paused")

@@ -1,7 +1,7 @@
-[gd_scene load_steps=13 format=3 uid="uid://bk8s5lmjqr4pc"]
+[gd_scene load_steps=14 format=3 uid="uid://bk8s5lmjqr4pc"]
 
 [ext_resource type="Script" uid="uid://bwmtbdfbq0af1" path="res://Scenes/Prototype/function_combat_prototype.gd" id="1_prototype"]
-[ext_resource type="Theme" uid="uid://c0lnmv5pnxk70" path="res://Scenes/UI/Themes/WhitePanels.tres" id="2_in4fx"]
+[ext_resource type="Theme" uid="uid://dtl0l5rsfeodo" path="res://Scenes/UI/Themes/WhiteButtons.tres" id="2_4btw1"]
 [ext_resource type="Shader" uid="uid://bpw0f8iiptn3b" path="res://Shaders/VHS_CRT.gdshader" id="3_4btw1"]
 [ext_resource type="Script" uid="uid://i8bg2nawwnn0" path="res://addons/richtext2/text_effects/effects/rte_sin.gd" id="3_wiev2"]
 [ext_resource type="Script" uid="uid://dhbxvg36y8pfd" path="res://addons/richtext2/text_effects/effects/rte_curspull.gd" id="4_4btw1"]
@@ -44,6 +44,8 @@ shader_parameter/clip_warp = false
 shader_parameter/vignette_intensity = 0.4
 shader_parameter/vignette_opacity = 0.5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4btw1"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r83el"]
 bg_color = Color(1, 1, 1, 1)
 
@@ -74,7 +76,7 @@ layout_mode = 2
 [node name="AgentFace" type="Panel" parent="VBox/TopPanel"]
 custom_minimum_size = Vector2(300, 200)
 layout_mode = 2
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 theme_override_styles/panel = SubResource("StyleBoxFlat_in4fx")
 
 [node name="FaceLabel" type="RichTextLabel" parent="VBox/TopPanel/AgentFace"]
@@ -152,8 +154,8 @@ override_bbcodeEnabled = true
 override_clipContents = false
 override_fitContent = true
 metadata/_custom_type_script = "uid://2f4fi75scxes"
-metadata/mouse_position = Vector2(1014.38, 222.396)
-metadata/frame = 2550380
+metadata/mouse_position = Vector2(1004.49, 235.072)
+metadata/frame = 2712129
 metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
 
 [node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]
@@ -166,7 +168,7 @@ offset_bottom = 200.0
 [node name="StatsPanel" type="Panel" parent="VBox/TopPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 
 [node name="StatsVBox" type="VBoxContainer" parent="VBox/TopPanel/StatsPanel"]
 layout_mode = 1
@@ -197,8 +199,9 @@ layout_mode = 2
 [node name="LevelUpButton" type="Button" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
+theme_override_styles/hover = SubResource("StyleBoxFlat_4btw1")
 theme_override_styles/normal = SubResource("StyleBoxFlat_r83el")
 text = "+ Level"
 
@@ -228,7 +231,7 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
 theme_override_font_sizes/font_size = 12
-text = "XP"
+text = "Experience"
 
 [node name="XPBar" type="ProgressBar" parent="VBox/TopPanel/StatsPanel/StatsVBox/BarsGrid"]
 modulate = Color(0.00392157, 0.898039, 0.996078, 1)
@@ -264,7 +267,7 @@ horizontal_alignment = 2
 [node name="EnergyDisplay" type="Panel" parent="VBox/TopPanel"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 
 [node name="EnergyGrid" type="GridContainer" parent="VBox/TopPanel/EnergyDisplay"]
 layout_mode = 1
@@ -314,7 +317,7 @@ size_flags_vertical = 3
 [node name="LeftPanel" type="Panel" parent="VBox/BottomPanel"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 
 [node name="LeftVBox" type="VBoxContainer" parent="VBox/BottomPanel/LeftPanel"]
 layout_mode = 1
@@ -345,13 +348,14 @@ size_flags_horizontal = 3
 [node name="RunButton" type="Button" parent="VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer"]
 custom_minimum_size = Vector2(80, 30)
 layout_mode = 2
+theme = ExtResource("2_4btw1")
 theme_override_colors/font_color = Color(0.00392157, 0.898039, 0.996078, 1)
 text = "▶ RUN"
 
 [node name="EditButton" type="Button" parent="VBox/BottomPanel/LeftPanel/LeftVBox/HeaderContainer"]
 custom_minimum_size = Vector2(80, 30)
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme = ExtResource("2_4btw1")
 text = "✏ EDIT"
 
 [node name="FunctionListContainer" type="ScrollContainer" parent="VBox/BottomPanel/LeftPanel/LeftVBox"]
@@ -389,7 +393,7 @@ layout_mode = 2
 visible = false
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-theme = ExtResource("2_in4fx")
+theme = ExtResource("2_4btw1")
 
 [node name="RightVBox" type="VBoxContainer" parent="VBox/BottomPanel/RightPanel"]
 layout_mode = 1

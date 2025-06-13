@@ -29,6 +29,8 @@ var test_agent: FunctionAgent
 
 # Drag and drop variables
 var is_dragging: bool = false
+var dragging_function: CombatFunction = null
+var dragging_from_slot: int = -1
 
 # Execution control
 var is_running: bool = false
@@ -112,6 +114,8 @@ func setup_available_functions():
 		available_functions.add_child(button_instance)
 		# THEN setup the function data
 		button_instance.setup_function(combat_function)
+		# CONNECT THE SIGNAL - this was missing!
+		button_instance.function_drag_started.connect(_on_function_drag_started)
 		available_function_buttons.append(button_instance)
 
 func update_function_display():
@@ -220,6 +224,7 @@ func add_function_to_script(combat_function: CombatFunction):
 		flash_script_area_full()
 
 func flash_script_area_full():
+	"""Flash the script area to indicate it's full"""
 	var script_panel = $VBox/BottomPanel/LeftPanel
 	var original_modulate = script_panel.modulate
 	script_panel.modulate = Color.RED
@@ -443,6 +448,39 @@ func create_function_library() -> Array:
 # ===== DRAG AND DROP SYSTEM =====
 
 
+func _on_function_drag_started(combat_function: CombatFunction, button_node: Button):
+	"""Handle when a function button starts being dragged (legacy compatibility)"""
+	print("_on_function_drag_started called for: ", combat_function.name)
+	
+	if test_agent.function_script.size() >= test_agent.available_function_slots:
+		flash_script_area_full()
+		return
+	
+	if is_dragging:
+		return
+	
+	start_drag(combat_function, button_node)
+	
+
+func start_drag(combat_function: CombatFunction, button: Button):
+	"""Start the drag operation"""
+	print("start_drag called for: ", combat_function.name)
+	
+	if test_agent.function_script.size() >= test_agent.available_function_slots:
+		flash_script_area_full()
+		return
+	
+	if is_dragging:
+		return
+	
+	is_dragging = true
+	dragging_function = combat_function
+	dragging_from_slot = -1
+	
+	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+	print("Started dragging function: ", combat_function.name)
+	
+
 func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
 	"""Handle when a function is dropped onto a slot"""
 	print("Function dropped: %s from slot %d to slot %d" % [function.name, from_slot, to_slot])
@@ -493,13 +531,22 @@ func handle_failed_drag(drag_data):
 			slot_instance.accept_function(original_function)
 			print("Restored function %s to original slot %d" % [original_function.name, original_slot_index])
 
-# Override the _input method to handle failed drags
+
 func _input(event):
-	# Handle global drag failure cases
+	"""Handle mouse release for legacy drag system"""
+	if not is_dragging:
+		return
+	
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		# Check if we have a drag in progress that wasn't handled by drop_data
-		# This is a fallback for when drag data exists but no valid drop target was found
-		var current_drag = get_viewport().gui_get_drag_data()
-		if current_drag != null:
-			# The drag failed (no valid drop target), handle cleanup
-			handle_failed_drag(current_drag)
+		print("Mouse released during drag")
+		add_function_to_script(dragging_function)
+		cleanup_drag_state()
+		
+		
+func cleanup_drag_state():
+	"""Clean up drag state"""
+	print("Cleaning up drag state")
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	dragging_function = null
+	dragging_from_slot = -1
+	is_dragging = false

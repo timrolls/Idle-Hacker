@@ -31,6 +31,7 @@ var test_agent: FunctionAgent
 var is_dragging: bool = false
 var dragging_function: CombatFunction = null
 var dragging_from_slot: int = -1
+var drag_preview_node: Control = null
 
 # Execution control
 var is_running: bool = false
@@ -380,9 +381,9 @@ func execute_current_function():
 			test_agent.add_energy(energy_type)
 		
 		# Add XP
-		test_agent.xp += current_function.xp_reward
-		if test_agent.xp >= 100:
-			level_up()
+		#test_agent.xp += current_function.xp_reward
+		#if test_agent.xp >= 100:
+			#level_up()
 	else:
 		print("Not enough energy for: ", current_function.name)
 	
@@ -463,7 +464,7 @@ func _on_function_drag_started(combat_function: CombatFunction, button_node: But
 	
 
 func start_drag(combat_function: CombatFunction, button: Button):
-	"""Start the drag operation"""
+	"""Start the drag operation with visual preview"""
 	print("start_drag called for: ", combat_function.name)
 	
 	if test_agent.function_script.size() >= test_agent.available_function_slots:
@@ -477,9 +478,62 @@ func start_drag(combat_function: CombatFunction, button: Button):
 	dragging_function = combat_function
 	dragging_from_slot = -1
 	
+	# Create and show drag preview
+	create_and_show_drag_preview(combat_function)
+	
 	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 	print("Started dragging function: ", combat_function.name)
 	
+
+func start_drag_from_slot(function: CombatFunction, from_slot_index: int):
+	"""Called when dragging starts from a function slot"""
+	print("Starting drag from slot %d: %s" % [from_slot_index, function.name])
+	
+	is_dragging = true
+	dragging_function = function
+	dragging_from_slot = from_slot_index
+	
+	# Create and show drag preview
+	create_and_show_drag_preview(function)
+	
+	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+
+func create_and_show_drag_preview(function: CombatFunction):
+	"""Create and display a drag preview that follows the mouse"""
+	# Clean up any existing preview
+	if drag_preview_node:
+		drag_preview_node.queue_free()
+		drag_preview_node = null
+	
+	# Create preview
+	drag_preview_node = Panel.new()
+	var preview_label = Label.new()
+	preview_label.text = "%s %s" % [function.icon, function.name]
+	preview_label.add_theme_color_override("font_color", function.color)
+	
+	# Style the preview panel
+	var preview_style = StyleBoxFlat.new()
+	preview_style.bg_color = Color(0.2, 0.2, 0.2, 0.8)
+	preview_style.border_color = Color.WHITE
+	preview_style.set_border_width_all(2)
+	preview_style.set_corner_radius_all(5)
+	drag_preview_node.add_theme_stylebox_override("panel", preview_style)
+	
+	drag_preview_node.add_child(preview_label)
+	drag_preview_node.custom_minimum_size = Vector2(120, 30)
+	drag_preview_node.z_index = 100  # Make sure it's on top
+	
+	# Add to the scene tree at root level so it appears above everything
+	get_tree().root.add_child(drag_preview_node)
+	
+	# Position at mouse
+	update_drag_preview_position()
+
+func update_drag_preview_position():
+	"""Update drag preview position to follow mouse"""
+	if drag_preview_node:
+		var mouse_pos = get_global_mouse_position()
+		drag_preview_node.global_position = mouse_pos + Vector2(10, 10)  # Slight offset
 
 func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
 	"""Handle when a function is dropped onto a slot"""
@@ -519,6 +573,17 @@ func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int
 			update_function_display()
 			print("Function moved from slot %d to slot %d" % [from_slot, to_slot])
 
+
+func handle_slot_drag_release():
+	"""Handle when releasing a drag that started from a slot"""
+	# For now, just remove the function from the slot
+	# In the future, you could check if it was dropped on a valid target
+	if dragging_from_slot >= 0 and dragging_from_slot < test_agent.function_script.size():
+		test_agent.function_script.remove_at(dragging_from_slot)
+		update_function_display()
+		print("Function removed from slot ", dragging_from_slot)
+
+
 func handle_failed_drag(drag_data):
 	"""Handle when a drag operation fails - restore the function to original slot"""
 	if drag_data is Dictionary and drag_data.has("original_function") and drag_data.has("original_slot"):
@@ -533,20 +598,33 @@ func handle_failed_drag(drag_data):
 
 
 func _input(event):
-	"""Handle mouse release for legacy drag system"""
-	if not is_dragging:
-		return
-	
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		print("Mouse released during drag")
-		add_function_to_script(dragging_function)
-		cleanup_drag_state()
+	"""Handle mouse events for legacy drag system"""
+	if is_dragging:
+		if event is InputEventMouseMotion:
+			# Update preview position
+			update_drag_preview_position()
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			print("Mouse released during drag")
+			if dragging_from_slot >= 0:
+				# Dragging from slot - handle removal
+				handle_slot_drag_release()
+			else:
+				# Dragging from available functions - add to script
+				add_function_to_script(dragging_function)
+			cleanup_drag_state()
 		
 		
+
 func cleanup_drag_state():
-	"""Clean up drag state"""
+	"""Clean up drag state and preview"""
 	print("Cleaning up drag state")
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	
+	# Remove drag preview
+	if drag_preview_node:
+		drag_preview_node.queue_free()
+		drag_preview_node = null
+	
 	dragging_function = null
 	dragging_from_slot = -1
 	is_dragging = false

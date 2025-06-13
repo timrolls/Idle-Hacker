@@ -1,0 +1,108 @@
+[gd_scene load_steps=6 format=3 uid="uid://bw8y7x2j1k3m4"]
+
+[ext_resource type="Script" uid="uid://crd52ogf6el7c" path="res://Scenes/Prototype/function_slot.gd" id="1_abcd1234"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5n0i"]
+bg_color = Color(0.133333, 0.133333, 0.133333, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3la54"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ymyom"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fo6ry"]
+bg_color = Color(0.00392157, 0.898039, 0.996078, 1)
+
+[node name="FunctionSlot" type="Panel"]
+custom_minimum_size = Vector2(200, 80)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_abcd1234")
+locked_style = SubResource("StyleBoxFlat_v5n0i")
+empty_style = SubResource("StyleBoxFlat_3la54")
+filled_style = SubResource("StyleBoxFlat_ymyom")
+executing_style = SubResource("StyleBoxFlat_fo6ry")
+
+[node name="ContentContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LockedLabel" type="Label" parent="ContentContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EmptyLabel" type="Label" parent="ContentContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FunctionContent" type="Control" parent="ContentContainer"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBox" type="HBoxContainer" parent="ContentContainer/FunctionContent"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="FunctionIcon" type="Label" parent="ContentContainer/FunctionContent/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "⚔"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FunctionInfo" type="VBoxContainer" parent="ContentContainer/FunctionContent/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FunctionName" type="Label" parent="ContentContainer/FunctionContent/HBox/FunctionInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Function Name"
+
+[node name="FunctionDesc" type="Label" parent="ContentContainer/FunctionContent/HBox/FunctionInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 10
+text = "Function description"
+autowrap_mode = 3
+
+[node name="EnergyCostContainer" type="HBoxContainer" parent="ContentContainer/FunctionContent/HBox/FunctionInfo"]
+layout_mode = 2
+theme_override_constants/separation = 2

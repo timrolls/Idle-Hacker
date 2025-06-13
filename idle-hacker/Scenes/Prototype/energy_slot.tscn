@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1a2b3c4e5f6g"]
+
+[ext_resource type="Script" uid="uid://cfrknssvxwffl" path="res://Scenes/Prototype/energy_slot.gd" id="1_ijkl9012"]
+
+[node name="EnergySlot" type="Panel"]
+custom_minimum_size = Vector2(40, 40)
+script = ExtResource("1_ijkl9012")

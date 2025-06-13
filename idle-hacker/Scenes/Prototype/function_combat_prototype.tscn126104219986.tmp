@@ -154,8 +154,8 @@ override_bbcodeEnabled = true
 override_clipContents = false
 override_fitContent = true
 metadata/_custom_type_script = "uid://2f4fi75scxes"
-metadata/mouse_position = Vector2(894, 224)
-metadata/frame = 2974247
+metadata/mouse_position = Vector2(2297, -198)
+metadata/frame = 2840137
 metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
 
 [node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]
@@ -286,31 +286,26 @@ theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 
 [node name="EnergySlot1" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot2" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot3" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot4" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot5" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")

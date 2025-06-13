@@ -1,0 +1,73 @@
+[gd_scene load_steps=5 format=3 uid="uid://da08y7x6w5v4u"]
+
+[ext_resource type="Script" uid="uid://dn5rcq4688310" path="res://Scenes/Prototype/available_function_button.gd" id="1_efgh5678"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jadx1"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1l87m"]
+bg_color = Color(0.00392157, 0.898039, 0.996078, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w7ime"]
+bg_color = Color(0, 0.72, 0.8, 1)
+
+[node name="AvailableFunctionButton" type="Control"]
+custom_minimum_size = Vector2(140, 60)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_efgh5678")
+normal_style = SubResource("StyleBoxFlat_jadx1")
+hover_style = SubResource("StyleBoxFlat_1l87m")
+pressed_style = SubResource("StyleBoxFlat_w7ime")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+toggle_mode = true
+flat = true
+
+[node name="HBox" type="HBoxContainer" parent="Button"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 5
+
+[node name="IconLabel" type="Label" parent="Button/HBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "⚔"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoContainer" type="VBoxContainer" parent="Button/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="NameLabel" type="Label" parent="Button/HBox/InfoContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Function Name"
+vertical_alignment = 1
+
+[node name="DescLabel" type="Label" parent="Button/HBox/InfoContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 8
+text = "Function description"
+autowrap_mode = 3
+
+[node name="CostContainer" type="HBoxContainer" parent="Button/HBox/InfoContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2

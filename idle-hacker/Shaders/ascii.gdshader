@@ -34,4 +34,3 @@ void fragment( )
 
 	COLOR = texture( ascii_tex, ascii_uv + vec2( col * ( float( available_columns ) / float( max_columns ) ), 0.0 ) );
 }
-

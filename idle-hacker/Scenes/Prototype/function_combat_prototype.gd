@@ -28,9 +28,6 @@ const EnergySlotScene = preload("res://Scenes/Prototype/energy_slot.tscn")
 var test_agent: FunctionAgent
 
 # Drag and drop variables
-var drag_preview: Control = null
-var dragging_function: CombatFunction = null
-var dragging_from_slot: int = -1
 var is_dragging: bool = false
 
 # Execution control
@@ -115,7 +112,6 @@ func setup_available_functions():
 		available_functions.add_child(button_instance)
 		# THEN setup the function data
 		button_instance.setup_function(combat_function)
-		button_instance.function_drag_started.connect(_on_function_drag_started)
 		available_function_buttons.append(button_instance)
 
 func update_function_display():
@@ -156,67 +152,49 @@ func update_energy_display():
 		var energy_type = test_agent.energy_queue[i]
 		energy_slot_instances[i].set_energy_type(energy_type)
 
-func start_drag_from_slot(function: CombatFunction, from_slot_index: int):
-	"""Called when dragging starts from a function slot"""
-	print("Starting drag from slot %d: %s" % [from_slot_index, function.name])
-	
-	# Set up global drag state for compatibility
-	is_dragging = true
-	dragging_function = function
-	dragging_from_slot = from_slot_index
-	
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
 
-func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
-	"""Handle when a function is dropped onto a slot"""
-	print("Function dropped: %s from slot %d to slot %d" % [function.name, from_slot, to_slot])
-	
-	if from_slot == -1:
-		# Dropped from available functions
-		if test_agent.function_script.size() < test_agent.available_function_slots:
-			# Insert at specific position if not at the end
-			if to_slot < test_agent.function_script.size():
-				test_agent.function_script.insert(to_slot, function)
-			else:
-				test_agent.function_script.append(function)
-			
-			update_function_display()
-			last_function_script_size = test_agent.function_script.size()
-			print("Function added to slot %d successfully!" % to_slot)
-		else:
-			print("No available slots!")
-			flash_script_area_full()
-	else:
-		# Moved from one slot to another
-		if from_slot < test_agent.function_script.size() and to_slot != from_slot:
-			var moved_function = test_agent.function_script[from_slot]
-			test_agent.function_script.remove_at(from_slot)
-			
-			# Adjust target index if needed
-			var insert_index = to_slot
-			if from_slot < to_slot:
-				insert_index -= 1
-			
-			if insert_index < test_agent.function_script.size():
-				test_agent.function_script.insert(insert_index, moved_function)
-			else:
-				test_agent.function_script.append(moved_function)
-			
-			update_function_display()
-			print("Function moved from slot %d to slot %d" % [from_slot, to_slot])
-	
-	cleanup_drag_state()
 
-func _on_function_drag_started(combat_function: CombatFunction, button_node: Button):
-	"""Handle when a function button starts being dragged (legacy compatibility)"""
-	if test_agent.function_script.size() >= test_agent.available_function_slots:
-		flash_script_area_full()
-		return
-	
-	if is_dragging:
-		return
-	
-	start_drag(combat_function, button_node)
+#func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
+	#"""Handle when a function is dropped onto a slot"""
+	#print("Function dropped: %s from slot %d to slot %d" % [function.name, from_slot, to_slot])
+	#
+	#if from_slot == -1:
+		## Dropped from available functions
+		#if test_agent.function_script.size() < test_agent.available_function_slots:
+			## Insert at specific position if not at the end
+			#if to_slot < test_agent.function_script.size():
+				#test_agent.function_script.insert(to_slot, function)
+			#else:
+				#test_agent.function_script.append(function)
+			#
+			#update_function_display()
+			#last_function_script_size = test_agent.function_script.size()
+			#print("Function added to slot %d successfully!" % to_slot)
+		#else:
+			#print("No available slots!")
+			#flash_script_area_full()
+	#else:
+		## Moved from one slot to another
+		#if from_slot < test_agent.function_script.size() and to_slot != from_slot:
+			#var moved_function = test_agent.function_script[from_slot]
+			#test_agent.function_script.remove_at(from_slot)
+			#
+			## Adjust target index if needed
+			#var insert_index = to_slot
+			#if from_slot < to_slot:
+				#insert_index -= 1
+			#
+			#if insert_index < test_agent.function_script.size():
+				#test_agent.function_script.insert(insert_index, moved_function)
+			#else:
+				#test_agent.function_script.append(moved_function)
+			#
+			#update_function_display()
+			#print("Function moved from slot %d to slot %d" % [from_slot, to_slot])
+	#
+	#cleanup_drag_state()
+
+
 
 func _on_function_removed(slot_index: int):
 	"""Handle when a function is removed from a slot"""
@@ -226,31 +204,7 @@ func _on_function_removed(slot_index: int):
 		last_function_script_size = test_agent.function_script.size()
 		print("Function removed from slot ", slot_index)
 
-# Legacy drag functions for compatibility
-func start_drag(combat_function: CombatFunction, button: Button):
-	if test_agent.function_script.size() >= test_agent.available_function_slots:
-		flash_script_area_full()
-		return
-	
-	if is_dragging:
-		return
-	
-	is_dragging = true
-	dragging_function = combat_function
-	dragging_from_slot = -1
-	
-	Input.set_default_cursor_shape(Input.CURSOR_DRAG)
-	print("Started dragging function: ", combat_function.name)
 
-func _input(event):
-	# Legacy drag system fallback
-	if not is_dragging:
-		return
-	
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		print("Mouse released during drag")
-		add_function_to_script(dragging_function)
-		cleanup_drag_state()
 
 func add_function_to_script(combat_function: CombatFunction):
 	print("Attempting to add function: ", combat_function.name)
@@ -272,15 +226,8 @@ func flash_script_area_full():
 	var tween = create_tween()
 	tween.tween_property(script_panel, "modulate", original_modulate, 0.3)
 
-func cleanup_drag_state():
-	print("Cleaning up drag state")
-	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
-	dragging_function = null
-	dragging_from_slot = -1
-	is_dragging = false
-
 func _exit_tree():
-	cleanup_drag_state()
+	pass
 
 # Rest of the original functions remain mostly the same
 func _on_run_button_pressed():
@@ -491,3 +438,68 @@ func create_function_library() -> Array:
 	functions.append(ice_shard)
 	
 	return functions
+	
+
+# ===== DRAG AND DROP SYSTEM =====
+
+
+func handle_function_drop(function: CombatFunction, from_slot: int, to_slot: int):
+	"""Handle when a function is dropped onto a slot"""
+	print("Function dropped: %s from slot %d to slot %d" % [function.name, from_slot, to_slot])
+	
+	if from_slot == -1:
+		# Dropped from available functions
+		if test_agent.function_script.size() < test_agent.available_function_slots:
+			# Insert at specific position if not at the end
+			if to_slot < test_agent.function_script.size():
+				test_agent.function_script.insert(to_slot, function)
+			else:
+				test_agent.function_script.append(function)
+			
+			update_function_display()
+			last_function_script_size = test_agent.function_script.size()
+			print("Function added to slot %d successfully!" % to_slot)
+		else:
+			print("No available slots!")
+			flash_script_area_full()
+	else:
+		# Moved from one slot to another
+		if from_slot < test_agent.function_script.size() and to_slot != from_slot:
+			var moved_function = test_agent.function_script[from_slot]
+			test_agent.function_script.remove_at(from_slot)
+			
+			# Adjust target index if needed
+			var insert_index = to_slot
+			if from_slot < to_slot:
+				insert_index -= 1
+			
+			if insert_index < test_agent.function_script.size():
+				test_agent.function_script.insert(insert_index, moved_function)
+			else:
+				test_agent.function_script.append(moved_function)
+			
+			update_function_display()
+			print("Function moved from slot %d to slot %d" % [from_slot, to_slot])
+
+func handle_failed_drag(drag_data):
+	"""Handle when a drag operation fails - restore the function to original slot"""
+	if drag_data is Dictionary and drag_data.has("original_function") and drag_data.has("original_slot"):
+		var original_function = drag_data["original_function"]
+		var original_slot_index = drag_data["original_slot"]
+		
+		# Restore function to original slot
+		if original_slot_index >= 0 and original_slot_index < function_slot_instances.size():
+			var slot_instance = function_slot_instances[original_slot_index]
+			slot_instance.accept_function(original_function)
+			print("Restored function %s to original slot %d" % [original_function.name, original_slot_index])
+
+# Override the _input method to handle failed drags
+func _input(event):
+	# Handle global drag failure cases
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		# Check if we have a drag in progress that wasn't handled by drop_data
+		# This is a fallback for when drag data exists but no valid drop target was found
+		var current_drag = get_viewport().gui_get_drag_data()
+		if current_drag != null:
+			# The drag failed (no valid drop target), handle cleanup
+			handle_failed_drag(current_drag)

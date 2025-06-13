@@ -52,18 +52,21 @@ func setup_default_styles():
 	
 	# Filled slot style
 	filled_style = StyleBoxFlat.new()
-	filled_style.bg_color = Color.DARK_GRAY * 0.3
+	filled_style.bg_color = Color.DIM_GRAY * 0.3
+	filled_style.border_color = Color.CYAN * 0.7
+	filled_style.set_border_width_all(2)
 	
 	# Executing slot style
 	executing_style = StyleBoxFlat.new()
-	executing_style.bg_color = Color.BLUE * 0.3
+	executing_style.bg_color = Color.ORANGE * 0.3
+	executing_style.border_color = Color.ORANGE
+	executing_style.set_border_width_all(3)
 
 func setup_slot(index: int, state: SlotState, function: CombatFunction = null, req_level: int = 1):
 	slot_index = index
 	current_state = state
 	combat_function = function
 	required_level = req_level
-	
 	update_display()
 
 func update_display():
@@ -84,41 +87,38 @@ func update_display():
 
 func show_locked_state():
 	locked_label.visible = true
-	locked_label.text = "🔒 Unlocks at Level %d" % required_level
+	locked_label.text = "LOCKED\nLv.%d" % required_level
 	add_theme_stylebox_override("panel", locked_style)
 
 func show_empty_state():
 	empty_label.visible = true
-	empty_label.text = "Drop Function Here [Slot %d]" % (slot_index + 1)
+	empty_label.text = "EMPTY SLOT"
 	add_theme_stylebox_override("panel", empty_style)
 
 func show_filled_state():
-	if not combat_function:
-		return
-		
 	function_content.visible = true
 	
-	# Update function info
-	function_icon.text = combat_function.icon
-	function_icon.modulate = combat_function.color
-	function_name_label.text = combat_function.name
-	function_desc_label.text = combat_function.description
-	
-	# Clear and update energy cost display
-	for child in energy_cost_container.get_children():
-		child.queue_free()
-	
-	if combat_function.energy_cost.size() > 0:
-		var cost_label = Label.new()
-		cost_label.text = "Cost: "
-		cost_label.add_theme_color_override("font_color", Color.GRAY)
-		energy_cost_container.add_child(cost_label)
+	if combat_function:
+		function_icon.text = combat_function.icon
+		function_icon.add_theme_color_override("font_color", combat_function.color)
+		function_name_label.text = combat_function.name
+		function_desc_label.text = combat_function.description
 		
-		for energy_type in combat_function.energy_cost:
-			var energy_icon = Label.new()
-			energy_icon.text = get_energy_icon(energy_type)
-			energy_icon.add_theme_color_override("font_color", get_energy_color(energy_type))
-			energy_cost_container.add_child(energy_icon)
+		# Clear previous energy cost display
+		for child in energy_cost_container.get_children():
+			child.queue_free()
+		
+		# Show energy cost
+		if combat_function.energy_cost.size() > 0:
+			var cost_label = Label.new()
+			cost_label.text = "Cost: "
+			energy_cost_container.add_child(cost_label)
+			
+			for energy_type in combat_function.energy_cost:
+				var energy_icon = Label.new()
+				energy_icon.text = get_energy_icon(energy_type)
+				energy_icon.add_theme_color_override("font_color", get_energy_color(energy_type))
+				energy_cost_container.add_child(energy_icon)
 	
 	add_theme_stylebox_override("panel", filled_style)
 
@@ -150,19 +150,53 @@ func _gui_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		if current_state == SlotState.FILLED or current_state == SlotState.EXECUTING:
 			remove_function()
-	
-	# Handle left click for dragging functions OUT of slots
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if current_state == SlotState.FILLED or current_state == SlotState.EXECUTING:
-			start_function_drag()
 
-func start_function_drag():
-	"""Start dragging this function out of the slot"""
-	if combat_function:
-		# Signal to main script that we're dragging FROM a slot
-		var main_script = get_tree().get_first_node_in_group("combat_prototype")
-		if main_script and main_script.has_method("start_drag_from_slot"):
-			main_script.start_drag_from_slot(combat_function, slot_index)
+func create_drag_preview() -> Control:
+	"""Create a visual preview for dragging"""
+	var preview = Panel.new()
+	var preview_label = Label.new()
+	preview_label.text = "%s %s" % [combat_function.icon, combat_function.name]
+	preview_label.add_theme_color_override("font_color", combat_function.color)
+	
+	# Style the preview panel
+	var preview_style = StyleBoxFlat.new()
+	preview_style.bg_color = Color(0.2, 0.2, 0.2, 0.8)
+	preview_style.border_color = Color.WHITE
+	preview_style.set_border_width_all(2)
+	preview_style.set_corner_radius_all(5)
+	preview.add_theme_stylebox_override("panel", preview_style)
+	
+	preview.add_child(preview_label)
+	preview.custom_minimum_size = Vector2(120, 30)
+	
+	return preview
+
+func get_drag_data(position: Vector2):
+	"""Override to provide drag data for Godot's drag system when dragging FROM slots"""
+	if combat_function and (current_state == SlotState.FILLED or current_state == SlotState.EXECUTING):
+		print("get_drag_data called for slot %d: %s" % [slot_index, combat_function.name])
+		
+		var drag_data = {
+			"type": "combat_function",
+			"function": combat_function,
+			"from_slot": slot_index
+		}
+		
+		# Create visual feedback
+		var preview = create_drag_preview()
+		set_drag_preview(preview)
+		
+		# Clear the function from this slot temporarily (will be restored if drop fails)
+		var temp_function = combat_function
+		clear_function()
+		
+		# Store the original function in case we need to restore it
+		drag_data["original_function"] = temp_function
+		drag_data["original_slot"] = slot_index
+		
+		return drag_data
+	
+	return null
 
 func remove_function():
 	function_removed.emit(slot_index)

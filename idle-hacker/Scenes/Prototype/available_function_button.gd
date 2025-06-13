@@ -23,7 +23,7 @@ func _ready():
 	if not normal_style:
 		setup_default_styles()
 	
-	# Connect button signals
+	# Connect button signals - KEEP the original button_down for clicking
 	button.button_down.connect(_on_button_down)
 	button.mouse_entered.connect(_on_mouse_entered)
 	button.mouse_exited.connect(_on_mouse_exited)
@@ -55,50 +55,25 @@ func setup_function(function: CombatFunction):
 	
 	# Safety check: make sure @onready nodes are initialized
 	if not icon_label:
-		print("Warning: @onready nodes not ready yet, deferring setup")
-		# Defer the setup until the next frame when @onready variables are ready
-		call_deferred("_deferred_setup_function", function)
+		print("Warning: @onready nodes not initialized yet in AvailableFunctionButton")
 		return
 	
-	_do_setup_function(function)
-
-func _deferred_setup_function(function: CombatFunction):
-	"""Called on next frame when @onready variables are guaranteed to be ready"""
-	_do_setup_function(function)
-
-func _do_setup_function(function: CombatFunction):
-	"""Actual setup implementation"""
-	# Set icon and color
-	icon_label.text = function.icon
-	icon_label.modulate = function.color
+	# Set function icon and name
+	icon_label.text = combat_function.icon
+	icon_label.add_theme_color_override("font_color", combat_function.color)
+	name_label.text = combat_function.name
+	desc_label.text = combat_function.description
 	
-	# Set name and description
-	name_label.text = function.name
-	desc_label.text = function.description
-	
-	# Clear and setup energy cost display
+	# Clear previous energy cost display
 	for child in cost_container.get_children():
 		child.queue_free()
 	
-	if function.energy_cost.size() > 0:
-		var cost_label = Label.new()
-		cost_label.text = "Cost: "
-		cost_label.add_theme_color_override("font_color", Color.GRAY)
-		cost_label.add_theme_font_size_override("font_size", 10)
-		cost_container.add_child(cost_label)
-		
-		for energy_type in function.energy_cost:
-			var energy_icon = Label.new()
-			energy_icon.text = get_energy_icon(energy_type)
-			energy_icon.add_theme_color_override("font_color", get_energy_color(energy_type))
-			energy_icon.add_theme_font_size_override("font_size", 12)
-			cost_container.add_child(energy_icon)
-	else:
-		var free_label = Label.new()
-		free_label.text = "Free"
-		free_label.add_theme_color_override("font_color", Color.GREEN)
-		free_label.add_theme_font_size_override("font_size", 10)
-		cost_container.add_child(free_label)
+	# Add energy cost icons
+	for energy_type in combat_function.energy_cost:
+		var energy_icon = Label.new()
+		energy_icon.text = get_energy_icon(energy_type)
+		energy_icon.add_theme_color_override("font_color", get_energy_color(energy_type))
+		cost_container.add_child(energy_icon)
 	
 	# Apply normal style
 	button.add_theme_stylebox_override("normal", normal_style)
@@ -120,42 +95,45 @@ func get_energy_color(energy_type: CombatFunction.EnergyType) -> Color:
 		_: return Color.WHITE
 
 func _on_button_down():
-	# Small delay to distinguish between click and drag
-	await get_tree().create_timer(0.1).timeout
-	
-	if button.button_pressed:
-		print("Starting drag for: ", combat_function.name)
-		function_drag_started.emit(combat_function, button)
-		
-		# Start Godot's built-in drag and drop system
-		var drag_data = {
-			"type": "combat_function",
-			"function": combat_function,
-			"from_slot": -1  # -1 indicates from available functions
-		}
-		#set_drag_preview(create_drag_preview())
-		button.set_drag_preview(create_drag_preview())
+	# Remove the problematic delay!
+	print("Starting drag for: ", combat_function.name)
+	function_drag_started.emit(combat_function, button)
 
 func create_drag_preview() -> Control:
 	"""Create a visual preview for dragging"""
-	var preview = Control.new()
+	var preview = Panel.new()
 	var preview_label = Label.new()
 	preview_label.text = "%s %s" % [combat_function.icon, combat_function.name]
 	preview_label.add_theme_color_override("font_color", combat_function.color)
+	
+	# Style the preview panel
+	var preview_style = StyleBoxFlat.new()
+	preview_style.bg_color = Color(0.2, 0.2, 0.2, 0.8)
+	preview_style.border_color = Color.WHITE
+	preview_style.set_border_width_all(2)
+	preview_style.set_corner_radius_all(5)
+	preview.add_theme_stylebox_override("panel", preview_style)
+	
 	preview.add_child(preview_label)
+	preview.custom_minimum_size = Vector2(120, 30)
+	
 	return preview
 
+# ADD this method to the Control (not the Button)
 func get_drag_data(position: Vector2):
 	"""Override to provide drag data for Godot's drag system"""
 	if combat_function:
+		print("get_drag_data called for: ", combat_function.name)
+		
 		var drag_data = {
 			"type": "combat_function",
 			"function": combat_function,
 			"from_slot": -1
 		}
 		
-		# Create visual feedback
-		set_drag_preview(create_drag_preview())
+		# Create and set visual feedback
+		var preview = create_drag_preview()
+		set_drag_preview(preview)
 		
 		return drag_data
 	

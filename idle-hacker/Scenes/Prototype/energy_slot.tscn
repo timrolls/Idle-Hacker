@@ -3,5 +3,9 @@
 [ext_resource type="Script" uid="uid://cfrknssvxwffl" path="res://Scenes/Prototype/energy_slot.gd" id="1_ijkl9012"]
 
 [node name="EnergySlot" type="Panel"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(20, 20)
+offset_right = 20.0
+offset_bottom = 20.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
 script = ExtResource("1_ijkl9012")

@@ -154,8 +154,8 @@ override_bbcodeEnabled = true
 override_clipContents = false
 override_fitContent = true
 metadata/_custom_type_script = "uid://2f4fi75scxes"
-metadata/mouse_position = Vector2(894, 224)
-metadata/frame = 2974247
+metadata/mouse_position = Vector2(1467.99, 146.187)
+metadata/frame = 3063184
 metadata/rand = Array[int]([1410310827, 1330290953, 4193775785, 1245660986, 3364989751, 872896429])
 
 [node name="VHS CRT shader" type="ColorRect" parent="VBox/TopPanel/AgentFace"]
@@ -271,48 +271,49 @@ theme = ExtResource("2_4btw1")
 
 [node name="EnergyGrid" type="GridContainer" parent="VBox/TopPanel/EnergyDisplay"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -15.0
-offset_top = -75.0
-offset_right = 15.0
-offset_bottom = 75.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 88.0
+offset_right = -80.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 
 [node name="EnergySlot1" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot2" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot3" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot4" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="EnergySlot5" type="Panel" parent="VBox/TopPanel/EnergyDisplay/EnergyGrid"]
-visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
 theme_override_styles/panel = SubResource("StyleBoxFlat_on4ts")
 
 [node name="BottomPanel" type="HBoxContainer" parent="VBox"]
